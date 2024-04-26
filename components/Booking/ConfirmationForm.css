@@ -1,0 +1,10 @@
+.confirmation-form {
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateX(-20px);
+}
+
+.confirmation-form.slide-in {
+  opacity: 1;
+  transform: translateX(0);
+}

@@ -1,0 +1,72 @@
+/* DateSelecter.css */
+
+/* Set font family to Poppins */
+.react-datepicker,
+.react-datepicker__header,
+.react-datepicker-time__header {
+  font-family: "Poppins", sans-serif;
+  font-size: 12px;
+}
+
+.react-datepicker__header {
+  background-color: #f1f5f9;
+  font-size: 12px;
+}
+
+.custom-datepicker-input {
+  background-color: #f1f5f9; /* Change the background color to slate gray */
+  color: rgb(0, 0, 0); /* Change text color to white for better visibility */
+  border: none; /* Remove border */
+  outline: none;
+  width: 100%; /* Adjust width as needed */
+  border-radius: 4px; /* Add border radius for rounded corners */
+}
+
+.custom-datepicker-input:focus {
+  border: 1px solid #007bff;
+}
+
+.customDatePickerWidth {
+  border-radius: 6px;
+}
+
+/* Customize the clear button icon */
+.react-datepicker__close-icon::after {
+  color: black; /* Change the color if needed */
+  font-weight: normal; /* Set font weight as needed */
+  background-color: transparent;
+  border-radius: 0%;
+  font-size: larger;
+}
+
+.react-datepicker__close-icon {
+  background-image: none; /* Remove background image */
+}
+
+.customDatePickerWidth,
+.customDatePickerWidth > div.react-datepicker-wrapper,
+.customDatePickerWidth
+  > div
+  > div.react-datepicker__input-container
+  .customDatePickerWidth
+  > div
+  > div.react-datepicker__input-container
+  input {
+  width: 100%;
+}
+
+/* Remove bold font */
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-list-item,
+.react-datepicker__month-text,
+.react-datepicker__quarter-text,
+.react-datepicker__year-text {
+  font-weight: normal; /* Remove bold font */
+}
+
+/* Adjust drop-down size */
+.react-datepicker__time-container,
+.react-datepicker__time {
+  width: auto; /* Adjust the width of the drop-down */
+}
