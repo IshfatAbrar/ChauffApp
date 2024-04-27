@@ -37,9 +37,9 @@ function page() {
                 <p className=" text-md">
                   We want you to move freely, make the most of your time, and be
                   connected to the people and places that matter most to you.
-                  That's why we are committed to safety, from the creation of
-                  new standards to the development of technology with the aim of
-                  reducing incidents.
+                  That&apos;s why we are committed to safety, from the creation
+                  of new standards to the development of technology with the aim
+                  of reducing incidents.
                 </p>
               </div>
               <div className="mb-10">
@@ -79,16 +79,16 @@ function page() {
               <p className=" text-md">
                 Arrived at your destination? No need to reach for your wallet –
                 payments with Chauff are cashless and convenient. You can pay
-                with your credit card or Apple Pay, and you'll receive a receipt
-                by email.
+                with your credit card or Apple Pay, and you&apos;ll receive a
+                receipt by email.
               </p>
             </div>
             <div className="mb-10">
               <h3 className="text-lg font-semibold">Enjoy secure payments.</h3>
               <p className=" text-md ">
-                Whether you're booking a ride for a special occasion or regular
-                transportation, you can trust that your payment details are
-                protected every step of the way. Enjoy convenience and
+                Whether you&apos;re booking a ride for a special occasion or
+                regular transportation, you can trust that your payment details
+                are protected every step of the way. Enjoy convenience and
                 confidence as you seamlessly complete your transactions, knowing
                 that your financial data is in safe hands. Your satisfaction and
                 security are our top priorities.

@@ -12,7 +12,7 @@ function AirportTransfer() {
           <p className="text-lg ">
             Pickup from the airport? Ride to the airport?
           </p>
-          <p className="text-lg ">We've got you covered.</p>
+          <p className="text-lg ">We&apos;ve got you covered.</p>
           <div className="mt-8">
             <Link
               href="/book" // Replace with your booking page route

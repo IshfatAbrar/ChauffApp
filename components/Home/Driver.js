@@ -10,8 +10,9 @@ function Driver() {
           <h1 className="text-4xl font-bold mb-4">Be a Driver with us.</h1>
           <p className="text-md text-justify lg:max-w-[450px]">
             We believe transportation is a basic necessity. Getting to polling
-            places, healthcare facilities, grocery stores, or to grandma's house
-            for a visit. It all requires accessible, dependable transportation.
+            places, healthcare facilities, grocery stores, or to grandma&apos;s
+            house for a visit. It all requires accessible, dependable
+            transportation.
           </p>
           <div className="mt-8">
             <Link
