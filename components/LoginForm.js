@@ -70,7 +70,7 @@ export default function LoginForm() {
         </button>
         <Link href={"/signup"}>
           <p className="mt-4 text-gray-400 cursor-pointer hover:underline">
-            Don't have an account? Register here.
+            Don&apos;t have an account? Register here.
           </p>
         </Link>
       </form>
