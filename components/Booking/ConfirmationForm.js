@@ -1,12 +1,11 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
-import { useUser } from "@clerk/clerk-react";
+
 import { useRouter } from "next/navigation";
 import { ConfirmContext } from "@/context/ConfirmContext";
 import { TimeContext } from "@/context/TimeContext";
 
 function ConfirmationForm(props) {
-  const { isSignedIn, user, isLoaded } = useUser();
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const router = useRouter();
@@ -22,7 +21,6 @@ function ConfirmationForm(props) {
     return null;
   }
 
-  console.log(user);
   console.log("Payment: " + props.price);
   console.log("Time: " + time.toString());
 
@@ -57,11 +55,11 @@ function ConfirmationForm(props) {
               <h3 className=" text-lg font-bold mb-4">Your Information</h3>
               <div className="mb-2 ">
                 <label className="font-semibold mb-1">Name</label>
-                <p>{user.fullName}</p>
+                <p>placeholder for name</p>
               </div>
               <div className="mb-2 ">
                 <label className="font-semibold mb-1">Email</label>
-                <p>{user.primaryEmailAddress.emailAddress}</p>
+                <p>placeholder for email</p>
               </div>
               <div className="mb-4">
                 <label htmlFor="phone" className=" font-semibold mb-1">

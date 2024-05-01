@@ -4,7 +4,8 @@ import { usePathname } from "next/navigation";
 
 function Footer() {
   const currPath = usePathname();
-  const isBook = currPath === "/book";
+  const isBook =
+    currPath === "/book" || currPath === "/signin" || currPath === "/signup";
   return (
     <div
       className={` flex flex-col gap-6 items-center justify-center bg-slate-100 border-t-[2px] border-slate-300 p-8 py-10 ${

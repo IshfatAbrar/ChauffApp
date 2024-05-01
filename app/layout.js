@@ -1,14 +1,8 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import {
-  ClerkProvider,
-  SignIn,
-  SignUp,
-  SignedIn,
-  SignedOut,
-} from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "./Providers";
 
 const inter = Poppins({ subsets: ["latin"], weight: ["400"] });
 
@@ -30,13 +24,14 @@ export default function RootLayout({ children }) {
           referrerPolicy="no-referrer"
         />
       </head>
-      <ClerkProvider>
-        <body className={inter.className}>
+
+      <body className={inter.className}>
+        <AuthProvider>
           <Navbar />
           {children}
           <Footer />
-        </body>
-      </ClerkProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }

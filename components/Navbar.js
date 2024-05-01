@@ -1,23 +1,25 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
-import {
-  ClerkProvider,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
+import { signOut } from "next-auth/react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
+
   const currPath = usePathname();
+  const isBook = currPath === "/signin" || currPath === "/signup";
+
+  const { data: session } = useSession();
+  const name = session?.user?.name;
+
+  const loggedin = session;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,7 +41,7 @@ function Navbar() {
     <div
       className={`z-50 fixed w-full bg-white p-4 px-5 flex items-center justify-between border-b-[2px] border-slate-300 transition-transform ${
         showNavbar ? "translate-y-0" : "-translate-y-full"
-      }`}
+      } ${isBook ? "hidden" : ""}`}
     >
       <h1>
         <b>Chauff</b>
@@ -63,16 +65,14 @@ function Navbar() {
           Book a Ride
         </Link>
 
-        <SignedIn>
-          <Link
-            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/trips" ? "bg-slate-50" : ""
-            }`}
-            href="/trips"
-          >
-            My Trips
-          </Link>
-        </SignedIn>
+        <Link
+          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
+            currPath == "/trips" ? "bg-slate-50" : ""
+          }`}
+          href="/trips"
+        >
+          My Trips
+        </Link>
 
         <Link
           className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
@@ -93,7 +93,7 @@ function Navbar() {
         </Link>
       </div>
       <div className="flex flex-row gap-4">
-        <UserButton />
+        <h1 className="p-2 px-3 bg-slate-200 rounded-full">{name}</h1>
         <button className="menu-button visible md:hidden" onClick={toggleMenu}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -109,6 +109,14 @@ function Navbar() {
               d="M4 6h16M4 12h16m-7 6h7"
             />
           </svg>
+        </button>
+        <button
+          onClick={signOut}
+          className={`text-slate-400 ${
+            session ? "hidden md:flex md:items-center" : "hidden"
+          }`}
+        >
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
       </div>
       {menuOpen && (
