@@ -36,7 +36,7 @@ function Page() {
 
   return (
     <div
-      className="flex flex-col justify-end h-screen bg-cover bg-center items-center pt-32"
+      className="flex flex-col justify-end h-screen bg-cover bg-center items-center pt-32 bg-slate-300"
       style={{ backgroundImage: "url('support.jpeg')" }}
     >
       <div className="flex flex-col items-center px-4 mb-12">

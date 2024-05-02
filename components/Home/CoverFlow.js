@@ -1,9 +1,10 @@
+import Image from "next/image";
 import * as React from "react";
 
 import { EffectCoverflow, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-const photos = ["chauffX.png", "Black.png", "Comfort.png", "ChauffXL.png"];
+const photos = ["/chauffX.png", "/Black.png", "/Comfort.png", "/ChauffXL.png"];
 const types = ["Chauff X", "Black", "Comfort", "Chauff XL"];
 
 export default function CoverFlow() {
@@ -37,7 +38,7 @@ export default function CoverFlow() {
               <SwiperSlide key={index}>
                 <div className="flex flex-col w-[300px] items-center justify-center bg-slate-50 border-b-[2px] border-slate-200 p-4 rounded-2xl shadow-md mb-4 h-[350px]">
                   <h1 className="text-2xl font-bold mb-4">{types[index]}</h1>
-                  <img className=" w-2/3" src={p} alt="" />
+                  <Image src={p} alt="Car Models" width={200} height={200} />
                 </div>
               </SwiperSlide>
             );

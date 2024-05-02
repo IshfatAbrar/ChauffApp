@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 function Safety() {
   return (
@@ -27,12 +28,18 @@ function Safety() {
           </div>
         </div>
 
-        <div>
-          <img
-            src="Safety_3.jpg" // Replace with your image source
-            alt="Image"
-            className=" w-auto lg:w-4/5 h-auto rounded-2xl"
-          />
+        {/* Image Column */}
+        <div className="flex justify-center w-full lg:w-1/2">
+          <div className="w-full lg:w-4/5 h-auto">
+            <Image
+              src="/Safety_3.jpg"
+              alt="Image"
+              layout="responsive"
+              height={550}
+              width={550}
+              className="rounded-2xl"
+            />
+          </div>
         </div>
       </div>
     </div>

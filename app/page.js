@@ -20,6 +20,7 @@ import "swiper/css/grid";
 import Safety from "@/components/Home/Safety";
 import SecurePay from "@/components/Home/SecurePay";
 import Rewind from "@/components/Home/Rewind";
+import Payment from "@/components/Home/Payment";
 
 const section_2_buttons = ["Tour", "Airport Transfer", "Corporate Travel"];
 
@@ -37,9 +38,9 @@ export default function Home() {
         className=" w-full h-[400px] object-cover"
       ></img>
       <Safety />
-      <div className=" bg-slate-100 border-slate-300 border-y-2 w-full py-12 flex justify-center">
-        <SecurePay />
-      </div>
+
+      <Payment />
+
       <Driver />
     </div>
   );

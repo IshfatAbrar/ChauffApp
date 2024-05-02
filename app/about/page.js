@@ -1,10 +1,11 @@
 import React from "react";
+import Image from "next/image";
 
 function page() {
   return (
     <div className=" pb-[200px]">
       <div
-        className="flex flex-col justify-end h-[450px] lg:h-[550px] bg-cover bg-center "
+        className="flex flex-col justify-end h-[450px] lg:h-[550px] bg-cover bg-center bg-slate-300"
         style={{ backgroundImage: "url('about.jpeg')" }}
       >
         <h1 className=" text-4xl lg:text-6xl font-bold pl-8 lg:pl-[15%] pb-8 text-white">
@@ -60,10 +61,15 @@ function page() {
                 </p>
               </div>
             </div>
-            <img
-              src="safety.jpeg"
-              className=" h-[400px] object-cover object-top  w-auto rounded-xl mt-12"
-            ></img>
+            <Image
+              src="/safety.jpeg"
+              alt="Description of the image"
+              layout="responsive"
+              width={1200}
+              height={400}
+              objectFit="cover"
+              className="object-cover rounded-xl"
+            />
           </div>
         </section>
 

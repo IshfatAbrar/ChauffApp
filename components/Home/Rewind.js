@@ -1,22 +1,23 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination, EffectFade } from "swiper/modules";
+import Image from "next/image";
 
 const content = [
   {
     header: "Corporate Travel",
     info: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid enim quidem ipsum quos corrupti totam ullam nam, amet, quam dolores saepe assumenda adipisci tenetur, sunt minima et porro unde excepturi?",
-    src: "corporate.jpg",
+    src: "/corporate.jpg",
   },
   {
     header: "Airport Transfer",
     info: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid enim quidem ipsum quos corrupti totam ullam nam, amet, quam dolores saepe assumenda adipisci tenetur, sunt minima et porro unde excepturi?",
-    src: "sky.jpeg",
+    src: "/sky.jpeg",
   },
   {
     header: "Tour",
     info: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aliquid enim quidem ipsum quos corrupti totam ullam nam, amet, quam dolores saepe assumenda adipisci tenetur, sunt minima et porro unde excepturi?",
-    src: "image_3.jpg",
+    src: "/image_3.jpg",
   },
 ];
 
@@ -49,13 +50,18 @@ export default function Rewind() {
                 key={index}
               >
                 <div className="px-4 lg:px-0 flex flex-col lg:flex-row gap-6 lg:gap-24 justify-center items-center max-w-[100%]">
-                  <img
+                  <Image
                     src={p.src}
-                    className="lg:w-1/2 h-[400px] object-cover rounded-xl"
-                  ></img>
+                    className="object-cover rounded-xl"
+                    height="600"
+                    width="600"
+                  />
+
                   <div className="w-full lg:w-1/2">
-                    <h1 className="font-bold mb-2 text-4xl">{p.header}</h1>
-                    <p>{p.info}</p>
+                    <h1 className="font-bold mb-2 text-4xl min-w-[200px]">
+                      {p.header}
+                    </h1>
+                    <p className="min-w-[300px]">{p.info}</p>
                   </div>
                 </div>
               </SwiperSlide>

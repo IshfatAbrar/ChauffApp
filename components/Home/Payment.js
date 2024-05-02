@@ -1,0 +1,46 @@
+import React from "react";
+import Link from "next/link";
+
+function Payment() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-6 bg-slate-100 w-full py-12 border-slate-300 border-y-2">
+      <h2 className=" text-slate-200 hover:text-slate-300 duration-300">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          class="w-24 h-24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M12.516 2.17a.75.75 0 0 0-1.032 0 11.209 11.209 0 0 1-7.877 3.08.75.75 0 0 0-.722.515A12.74 12.74 0 0 0 2.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 0 0 .374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 0 0-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08Zm3.094 8.016a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </h2>
+      <div className="px-8 lg:px-0">
+        <h2 className="text-4xl font-bold mb-4 max-w-[1000px] text-center">
+          Secure and seamless cashless payments.
+        </h2>
+        <div>
+          <p className="text-md max-w-[600px]">
+            Experience peace of mind with our secure payment method for your
+            chauffeur service needs. At Chauff, we prioritize the security of
+            your transactions, implementing industry-leading encryption
+            protocols to safeguard your sensitive information.
+          </p>
+          <div className="mt-8">
+            <Link
+              href="/about#payment"
+              className="text-md text-slate-600 font-semibold hover:underline duration-300"
+            >
+              More about payments <i className="fa-solid fa-arrow-right"></i>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Payment;

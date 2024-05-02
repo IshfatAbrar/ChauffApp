@@ -1,10 +1,11 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 function Driver() {
   return (
     <div>
-      <div className="flex flex-col mw-[1200px] lg:flex-row items-center justify-center gap-12 pt-16 px-8">
+      <div className="flex flex-col lg:flex-row items-center justify-center gap-24 pt-16 px-8">
         {/* Text and Button Column */}
         <div className="lg:w-1/2 lg:px-0 lg:max-w-[500px]">
           <h1 className="text-4xl font-bold mb-4">Be a Driver with us.</h1>
@@ -24,12 +25,17 @@ function Driver() {
           </div>
         </div>
 
-        <div>
-          <img
-            src="Drive_with_us.jpg" // Replace with your image source
-            alt="Image"
-            className=" w-auto lg:w-4/5 h-auto rounded-2xl"
-          />
+        <div className="flex justify-center w-full lg:w-1/2">
+          <div className="w-full lg:w-4/5 h-auto">
+            <Image
+              src="/Drive_with_us.jpg"
+              alt="Image"
+              layout="responsive"
+              height={550}
+              width={550}
+              className="rounded-2xl"
+            />
+          </div>
         </div>
       </div>
     </div>
