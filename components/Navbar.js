@@ -6,7 +6,6 @@ import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { getServerSession } from "next-auth";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
