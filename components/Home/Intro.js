@@ -40,7 +40,7 @@ function Intro() {
           }`}
         >
           <Link
-            href="/signup"
+            href="/book"
             className=" px-5 lg:px-6 py-2 lg:py-3 bg-slate-200 text-black rounded-full text-md lg:text-lg font-semibold hover:bg-slate-300 transition duration-300"
           >
             Book your ride

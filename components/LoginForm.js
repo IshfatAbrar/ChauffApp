@@ -1,6 +1,7 @@
 "use client";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import { useState } from "react";
 
@@ -8,6 +9,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,14 +18,24 @@ export default function LoginForm() {
       const res = await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        redirect: false, // Set redirect to false to handle redirect manually
       });
+
       if (res.error) {
         setError("Invalid credentials");
         return;
       }
 
-      window.location.href = "/";
+      // Check if the callbackUrl is provided in the query parameters
+      const params = new URLSearchParams(window.location.search);
+      const callbackUrl = params.get("callbackUrl");
+
+      // Redirect to the intended page after successful login
+      if (callbackUrl) {
+        window.location.href = callbackUrl;
+      } else if (res.url) {
+        window.location.href = res.url;
+      }
     } catch (error) {
       console.log(error);
     }

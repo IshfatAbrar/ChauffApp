@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function RegisterForm() {
@@ -11,6 +11,7 @@ export default function RegisterForm() {
   const [confirmPass, setConfirmPass] = useState("");
   const [error, setError] = useState("");
   const [authenticating, setAuthenticating] = useState(false);
+  const router = useRouter();
 
   function validateEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,7 +66,7 @@ export default function RegisterForm() {
         const form = e.target;
         form.reset();
         setError("");
-        window.location.href = "/signin";
+        router.push("/signin");
       } else {
         console.log("User registration failed");
       }
