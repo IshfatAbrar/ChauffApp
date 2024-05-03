@@ -18,8 +18,6 @@ function Navbar() {
   const { data: session } = useSession();
   const name = session?.user?.name;
 
-  const loggedin = session;
-
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollPos = window.pageYOffset;
@@ -27,6 +25,7 @@ function Navbar() {
         prevScrollPos > currentScrollPos || currentScrollPos === 0;
       setPrevScrollPos(currentScrollPos);
       setShowNavbar(visible);
+      setMenuOpen(false);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -92,7 +91,13 @@ function Navbar() {
         </Link>
       </div>
       <div className="flex flex-row gap-4">
-        <h1 className="p-2 px-3 bg-slate-200 rounded-full">{name}</h1>
+        <h1
+          className={`p-2 px-3 bg-slate-200 rounded-full ${
+            session ? "" : "hidden"
+          }`}
+        >
+          {name}
+        </h1>
         <button className="menu-button visible md:hidden" onClick={toggleMenu}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -119,16 +124,53 @@ function Navbar() {
         </button>
       </div>
       {menuOpen && (
-        <div className="absolute top-full right-0 bg-white border-b-[2px] border-slate-300 w-full md:hidden">
-          <h2 className="hover:bg-slate-50 px-3 cursor-pointer p-2">Home</h2>
-          <h2 className="hover:bg-slate-50 px-3 cursor-pointer p-2">Book</h2>
-          <h2 className="hover:bg-slate-50 px-3 cursor-pointer p-2">History</h2>
-          <h2 className="hover:bg-slate-50 px-3 cursor-pointer p-2">
+        <div className="flex flex-col absolute top-full right-0 bg-white border-b-[2px] border-slate-300 w-full md:hidden">
+          <Link
+            href="/"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+          >
+            Home
+          </Link>
+          <Link
+            href="/book"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+          >
+            Book
+          </Link>
+          <Link
+            href="/trips"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+          >
+            History
+          </Link>
+          <Link
+            href="/about"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+          >
             About Us
-          </h2>
-          <h2 className="hover:bg-slate-50 px-3 cursor-pointer p-2">
+          </Link>
+          <Link
+            href="/contact"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+          >
             Contact Us
-          </h2>
+          </Link>
+          <button
+            onClick={signOut}
+            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 w-full text-left ${
+              session ? "" : "hidden"
+            }`}
+          >
+            sign Out
+          </button>
+          <Link
+            href="/signin"
+            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 w-full text-left ${
+              session ? "hidden" : ""
+            }`}
+          >
+            sign In
+          </Link>
         </div>
       )}
     </div>

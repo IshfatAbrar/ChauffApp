@@ -1,8 +1,12 @@
+"use client";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 function Intro() {
+  const { data: session } = useSession();
+  const name = session?.user?.name;
   return (
     <div className="flex flex-col lg:flex-row items-center justify-center gap-14 px-4 pt-20 lg:pt-0 lg:px-[15%]  h-screen">
       <div className=" px-4 lg:px-0">
@@ -15,7 +19,11 @@ function Intro() {
         <p className="text-lg lg:text-2xl max-w-[550px]">
           No cancellations. No waiting.
         </p>
-        <div className="mt-8 flex flex-row items-center gap-4">
+        <div
+          className={`mt-8 flex flex-row items-center gap-4 ${
+            session ? "hidden" : ""
+          }`}
+        >
           <Link
             href="/signup"
             className=" px-5 lg:px-6 py-2 lg:py-3 bg-slate-200 text-black rounded-full text-md lg:text-lg font-semibold hover:bg-slate-300 transition duration-300"
@@ -24,6 +32,18 @@ function Intro() {
           </Link>
           <Link className=" underline lg:text-lg" href="/signin">
             Have an account? Sign in
+          </Link>
+        </div>
+        <div
+          className={`mt-8 flex flex-row items-center gap-4 ${
+            session ? "" : "hidden"
+          }`}
+        >
+          <Link
+            href="/signup"
+            className=" px-5 lg:px-6 py-2 lg:py-3 bg-slate-200 text-black rounded-full text-md lg:text-lg font-semibold hover:bg-slate-300 transition duration-300"
+          >
+            Book your ride
           </Link>
         </div>
       </div>

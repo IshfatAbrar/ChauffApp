@@ -75,14 +75,16 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen p-6 bg-gray-900 text-white">
+    <div className="flex flex-col items-center justify-center h-screen p-8 bg-white">
       <form
-        className="bg-gray-800 p-8 rounded-lg shadow-md w-full max-w-md"
+        className="flex flex-col bg-slate-50 p-8 rounded-lg w-full max-w-md border-slate-300 border-[2px]"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-3xl mb-6">Register</h1>
-        {error && <p className="text-red-500 mb-4">{error}</p>}
-        <label className="mb-4">
+        <h1 className="font-bold font-mono text-slate-500 text-3xl mb-6">
+          <i class="fa-solid fa-pen-to-square"></i> Register
+        </h1>
+        {error && <p className="text-red-500 mb-2">{error}</p>}
+        <label className="mb-2">
           <span className={name ? "text-sm text-gray-400" : "hidden"}>
             Name
           </span>
@@ -90,10 +92,10 @@ export default function RegisterForm() {
             onChange={(e) => setName(e.target.value)}
             type="text"
             placeholder="Name"
-            className="block w-full mt-1 p-3 bg-gray-700 rounded-md border-none focus:ring focus:ring-blue-500 focus:outline-none"
+            className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />
         </label>
-        <label className="mb-4">
+        <label className="mb-2">
           <span className={phone ? "text-sm text-gray-400" : "hidden"}>
             Phone
           </span>
@@ -101,10 +103,10 @@ export default function RegisterForm() {
             onChange={(e) => setPhone(e.target.value)}
             type="phone"
             placeholder="Phone"
-            className="block w-full mt-1 p-3 bg-gray-700 rounded-md border-none focus:ring focus:ring-blue-500 focus:outline-none"
+            className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />
         </label>
-        <label className="mb-4">
+        <label className="mb-2">
           <span className={email ? "text-sm text-gray-400" : "hidden"}>
             Email
           </span>
@@ -112,10 +114,10 @@ export default function RegisterForm() {
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             placeholder="Email"
-            className="block w-full mt-1 p-3 bg-gray-700 rounded-md border-none focus:ring focus:ring-blue-500 focus:outline-none"
+            className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />
         </label>
-        <label className="mb-4">
+        <label className="mb-2">
           <span className={password ? "text-sm text-gray-400" : "hidden"}>
             Password
           </span>
@@ -123,10 +125,10 @@ export default function RegisterForm() {
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
-            className="block w-full mt-1 p-3 bg-gray-700 rounded-md border-none focus:ring focus:ring-blue-500 focus:outline-none"
+            className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />
         </label>
-        <label className="mb-4">
+        <label className="mb-2">
           <span className={confirmPass ? "text-sm text-gray-400" : "hidden"}>
             Confirm Password
           </span>
@@ -134,14 +136,14 @@ export default function RegisterForm() {
             onChange={(e) => setConfirmPass(e.target.value)}
             type="password"
             placeholder="Confirm Password"
-            className="block w-full mt-1 p-3 bg-gray-700 rounded-md border-none focus:ring focus:ring-blue-500 focus:outline-none"
+            className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />
         </label>
 
-        <button className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 disabled:bg-gray-400 disabled:pointer-events-none">
+        <button className="w-full py-1 bg-slate-200 border-slate-300 border-[2px] font-bold text-slate-500 rounded-md hover:border-slate-400 transition duration-300 font-mono text-xl">
           Register
         </button>
-        <Link href={"/signin"}>
+        <Link href="/signin">
           <p className="mt-4 text-gray-400 cursor-pointer hover:underline">
             Already have an account? Login here.
           </p>
