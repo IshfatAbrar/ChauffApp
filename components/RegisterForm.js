@@ -26,7 +26,13 @@ export default function RegisterForm() {
       return;
     }
 
+    if (password !== confirmPass) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     try {
+      setAuthenticating(true);
       const resUserExists = await fetch("api/userExists", {
         method: "POST",
         headers: {
@@ -42,11 +48,13 @@ export default function RegisterForm() {
 
       if (user) {
         setError("User already exists.");
+        setAuthenticating(false);
         return;
       }
 
       if (!validateEmail(email)) {
         setError("Please enter a valid email address.");
+        setAuthenticating(false);
         return;
       }
 
@@ -66,12 +74,15 @@ export default function RegisterForm() {
         const form = e.target;
         form.reset();
         setError("");
+        setAuthenticating(false);
         router.push("/signin");
       } else {
         console.log("User registration failed");
+        setAuthenticating(false);
       }
     } catch (error) {
       console.log("Error during registration: ", error);
+      setAuthenticating(false);
     }
   };
 
@@ -123,6 +134,7 @@ export default function RegisterForm() {
             Password
           </span>
           <input
+            key="password"
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
@@ -134,6 +146,7 @@ export default function RegisterForm() {
             Confirm Password
           </span>
           <input
+            key="confirmPass"
             onChange={(e) => setConfirmPass(e.target.value)}
             type="password"
             placeholder="Confirm Password"
@@ -142,7 +155,18 @@ export default function RegisterForm() {
         </label>
 
         <button className="w-full py-1 bg-slate-200 border-slate-300 border-[2px] font-bold text-slate-500 rounded-md hover:border-slate-400 transition duration-300 font-mono text-xl">
-          Register
+          {authenticating ? (
+            <div
+              className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+              role="status"
+            >
+              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                Loading...
+              </span>
+            </div>
+          ) : (
+            "Register"
+          )}
         </button>
         <Link href="/signin">
           <p className="mt-4 text-gray-400 cursor-pointer hover:underline">

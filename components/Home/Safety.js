@@ -32,9 +32,8 @@ function Safety() {
         <div className="flex justify-center w-full lg:w-1/2">
           <div className="w-full lg:w-4/5 h-auto">
             <Image
-              src="/Safety_3.jpg"
+              src="/safety-home-page.jpg"
               alt="Image"
-              layout="responsive"
               height={550}
               width={550}
               className="rounded-2xl"

@@ -9,10 +9,12 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const res = await signIn("credentials", {
@@ -23,6 +25,7 @@ export default function LoginForm() {
 
       if (res.error) {
         setError("Invalid credentials");
+        setLoading(false);
         return;
       }
 
@@ -36,12 +39,15 @@ export default function LoginForm() {
       } else if (res.url) {
         window.location.href = res.url;
       }
+      setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
 
     if (!email || !password) {
       setError("All fields are necessary.");
+      setLoading(false);
       return;
     }
   };
@@ -79,9 +85,21 @@ export default function LoginForm() {
           />
         </label>
 
-        <button className="w-full py-1 bg-slate-200 border-slate-300 border-[2px] font-bold text-slate-500 rounded-md  hover:border-slate-400 transition duration-300 font-mono text-xl">
-          Login
+        <button className="w-full py-1 bg-slate-200 border-slate-300 border-[2px] font-bold text-slate-500 rounded-md hover:border-slate-400 transition duration-300 font-mono text-xl">
+          {loading ? (
+            <div
+              className="inline-block h-5 w-5 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+              role="status"
+            >
+              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                Loading...
+              </span>
+            </div>
+          ) : (
+            "Login"
+          )}
         </button>
+
         <Link href={"/signup"}>
           <p className="mt-4 text-gray-400 cursor-pointer hover:underline">
             Don&apos;t have an account? Register here.

@@ -91,13 +91,14 @@ function Navbar() {
         </Link>
       </div>
       <div className="flex flex-row gap-4">
-        <h1
+        <Link
+          href={session ? "" : "/signin"}
           className={`p-2 px-3 bg-slate-200 rounded-full ${
-            session ? "" : "hidden"
+            session ? " cursor-default" : " cursor-pointer"
           }`}
         >
-          {name}
-        </h1>
+          {session ? name : "Sign In"}
+        </Link>
         <button className="menu-button visible md:hidden" onClick={toggleMenu}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -164,12 +165,12 @@ function Navbar() {
             sign Out
           </button>
           <Link
-            href="/signin"
+            href="/signup"
             className={`hover:bg-slate-50 px-3 cursor-pointer p-2 w-full text-left ${
               session ? "hidden" : ""
             }`}
           >
-            sign In
+            sign Up
           </Link>
         </div>
       )}
