@@ -1,10 +1,20 @@
-.confirmation-form {
-  opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  transform: translateX(-20px);
+.confirmation-form-enter {
+  opacity: 0.5;
+  transform: translateX(-200px);
 }
 
-.confirmation-form.slide-in {
+.confirmation-form-enter-active {
   opacity: 1;
   transform: translateX(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.confirmation-form-exit {
+  opacity: 1;
+}
+
+.confirmation-form-exit-active {
+  opacity: 0;
+  transform: translateX(-400px);
+  transition: opacity 300ms, transform 300ms;
 }

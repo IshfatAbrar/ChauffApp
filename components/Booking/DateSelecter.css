@@ -14,9 +14,9 @@
 }
 
 .custom-datepicker-input {
-  background-color: #f1f5f9; /* Change the background color to slate gray */
+  background-color: white; /* Change the background color to slate gray */
   color: rgb(0, 0, 0); /* Change text color to white for better visibility */
-  border: none; /* Remove border */
+  border: 2px solid #cbd5e1; /* Remove border */
   outline: none;
   width: 100%; /* Adjust width as needed */
   border-radius: 4px; /* Add border radius for rounded corners */
@@ -24,6 +24,7 @@
 
 .custom-datepicker-input:focus {
   border: 1px solid #007bff;
+  border: 2px solid #cbd5e1;
 }
 
 .customDatePickerWidth {

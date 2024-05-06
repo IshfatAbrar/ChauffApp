@@ -3,6 +3,7 @@ import { DestinationContext } from "@/context/DestinationContext";
 import { SourceContext } from "@/context/SourceContext";
 import React, { useContext, useEffect, useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+
 function Autocomplete(props) {
   const [value, setValue] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
@@ -25,7 +26,7 @@ function Autocomplete(props) {
     );
     service.getDetails({ placeId }, (place, status) => {
       if (status === "OK" && place.geometry && place.geometry.location) {
-        console.log(place.geometry.location.lng());
+        console.log(place);
         if (type == "source") {
           setSource({
             lat: place.geometry.location.lat(),
@@ -68,7 +69,7 @@ function Autocomplete(props) {
             },
             placeholder: placeholder,
             isClearable: true,
-            className: "w-full",
+            className: "w-full border-2 border-slate-300 rounded-md",
             components: {
               DropdownIndicator: false,
               ClearIndicator: () => (
@@ -80,16 +81,18 @@ function Autocomplete(props) {
             styles: {
               control: (provided) => ({
                 ...provided,
-                background: "#00ffff00",
+                background: "white",
                 border: "none",
                 ":hover": {
                   border: "none",
                 },
+                boxShadow: "none",
+                cursor: "text",
               }),
               input: (provided, state) => ({
                 ...provided,
-                border: state.isFocused ? "none" : provided.border,
-                outline: state.isFocused ? "none" : provided.outline,
+
+                outline: "none",
               }),
             },
           }}

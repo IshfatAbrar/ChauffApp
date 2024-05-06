@@ -41,54 +41,55 @@ function Navbar() {
         showNavbar ? "translate-y-0" : "-translate-y-full"
       } ${isBook ? "hidden" : ""}`}
     >
-      <h1>
+      <h1 className="text-black  text-xl font-serif md:text-white">
         <b>Chauff</b>
       </h1>
-      <div className="hidden md:flex gap-5">
-        <Link
-          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-            currPath == "/" ? "bg-slate-50" : ""
-          }`}
-          href="/"
-        >
-          Home
-        </Link>
-
-        <Link
-          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-            currPath == "/book" ? "bg-slate-50" : ""
-          }`}
-          href="/book"
-        >
-          Book a Ride
-        </Link>
-
-        <Link
-          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-            currPath == "/trips" ? "bg-slate-50" : ""
-          }`}
-          href="/trips"
-        >
-          My Trips
-        </Link>
-
-        <Link
-          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-            currPath == "/about" ? "bg-slate-50" : ""
-          }`}
-          href="/about"
-        >
-          About Us
-        </Link>
-
-        <Link
-          className={`hover:bg-slate-50 px-3 cursor-pointer p-2 rounded-full ${
-            currPath == "/contact" ? "bg-slate-50" : ""
-          }`}
-          href="/contact"
-        >
-          Contact Us
-        </Link>
+      <div className="hidden md:flex md:flex-col justify-center items-center gap-2">
+        <h1 className=" font-serif text-4xl">
+          <b>Chauff</b>
+        </h1>
+        <div className="gap-5">
+          <Link
+            className={` px-3 cursor-pointer p-2 rounded-full ${
+              currPath == "/" ? "font-semibold" : ""
+            }`}
+            href="/"
+          >
+            Home &gt;
+          </Link>
+          <Link
+            className={` px-3 cursor-pointer p-2 rounded-full ${
+              currPath == "/book" ? "font-semibold" : ""
+            }`}
+            href="/book"
+          >
+            Book a Ride &gt;
+          </Link>
+          <Link
+            className={` px-3 cursor-pointer p-2 rounded-full ${
+              currPath == "/trips" ? "font-semibold" : ""
+            }`}
+            href="/trips"
+          >
+            My Trips &gt;
+          </Link>
+          <Link
+            className={` px-3 cursor-pointer p-2 rounded-full ${
+              currPath == "/about" ? "font-semibold" : ""
+            }`}
+            href="/about"
+          >
+            About Us &gt;
+          </Link>
+          <Link
+            className={` px-3 cursor-pointer p-2 rounded-full ${
+              currPath == "/contact" ? "font-semibold" : ""
+            }`}
+            href="/contact"
+          >
+            Contact Us &gt;
+          </Link>
+        </div>
       </div>
       <div className="flex flex-row gap-4">
         <Link
@@ -121,56 +122,56 @@ function Navbar() {
             session ? "hidden md:flex md:items-center" : "hidden"
           }`}
         >
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <i className="fa-solid fa-arrow-right-from-bracket"></i>
         </button>
       </div>
       {menuOpen && (
         <div className="flex flex-col absolute top-full right-0 bg-white border-b-[2px] border-slate-300 w-full md:hidden">
           <Link
             href="/"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
           >
-            Home
+            Home &gt;
           </Link>
           <Link
             href="/book"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
           >
-            Book
+            Book &gt;
           </Link>
           <Link
             href="/trips"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
           >
-            History
+            History &gt;
           </Link>
           <Link
             href="/about"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
           >
-            About Us
+            About Us &gt;
           </Link>
           <Link
             href="/contact"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 w-full"
+            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
           >
-            Contact Us
+            Contact Us &gt;
           </Link>
           <button
             onClick={signOut}
-            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 w-full text-left ${
+            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full text-left ${
               session ? "" : "hidden"
             }`}
           >
-            sign Out
+            sign Out &gt;
           </button>
           <Link
             href="/signup"
-            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 w-full text-left ${
+            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full text-left ${
               session ? "hidden" : ""
             }`}
           >
-            sign Up
+            sign Up &gt;
           </Link>
         </div>
       )}

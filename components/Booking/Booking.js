@@ -33,7 +33,7 @@ function Booking() {
   }, [source, destination]);
 
   return (
-    <div className="flex flex-col p-5">
+    <div className="flex flex-col p-5 md:pt-12">
       <div className="flex flex-col rounded-md p-4 w-full">
         <h2 className="text-[20px] font-semibold">Booking</h2>
         <div className="flex flex-col gap-3 mt-5 ">

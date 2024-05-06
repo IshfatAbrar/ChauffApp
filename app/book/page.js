@@ -29,7 +29,7 @@ export default function Page() {
                 <div className="col-span-2 bg-blue-100 md:order-1 lg:order-2">
                   <Map />
                 </div>
-                <div className="pt-6 md:pt-16 order-2 md:order-2 lg:order-1">
+                <div className="pt-6 md:pt-16 order-2 md:order-2 lg:order-1 border-r-[2px] border-slate-300">
                   <Booking />
                 </div>
               </div>
