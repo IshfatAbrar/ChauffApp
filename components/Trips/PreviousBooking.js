@@ -19,7 +19,7 @@ function PreviousBooking() {
 
     const timer = setTimeout(() => {
       setShowLoading(false);
-    }, 2000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);

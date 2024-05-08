@@ -11,7 +11,8 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [showNewDropdown, setShowNewDropdown] = useState(false);
+  const [showBookDropdown, setShowBookDropdown] = useState(false);
+  const [showNewBookDropdown, setShowNewBookDropdown] = useState(false);
 
   const currPath = usePathname();
   const isBook = currPath === "/signin" || currPath === "/signup";
@@ -21,6 +22,7 @@ function Navbar() {
 
   const dropdownRef = useRef(null);
   const newDropdownRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,26 +32,36 @@ function Navbar() {
       setPrevScrollPos(currentScrollPos);
       setShowNavbar(visible);
       setMenuOpen(false);
-      setShowNewDropdown(false);
+      setShowBookDropdown(false);
     };
 
     const handleClickOutside = (event) => {
+      console.log(event);
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowBookDropdown(false);
+      }
+    };
+
+    const handleClickOutsideSmall = (event) => {
+      console.log(event);
       if (
-        (dropdownRef.current && !dropdownRef.current.contains(event.target)) ||
-        (newDropdownRef.current &&
-          !newDropdownRef.current.contains(event.target))
+        newDropdownRef.current &&
+        !newDropdownRef.current.contains(event.target) &&
+        hamburgerRef.current &&
+        !hamburgerRef.current.contains(event.target)
       ) {
-        setShowNewDropdown(false);
         setMenuOpen(false);
       }
     };
 
     window.addEventListener("scroll", handleScroll);
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideSmall);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideSmall);
     };
   }, [prevScrollPos]);
 
@@ -57,8 +69,11 @@ function Navbar() {
     setMenuOpen(!menuOpen);
   };
 
-  const toggleNewDropdown = () => {
-    setShowNewDropdown(!showNewDropdown);
+  const toggleBookDropdown = () => {
+    setShowBookDropdown(!showBookDropdown);
+  };
+  const toggleNewBookDropdown = () => {
+    setShowNewBookDropdown(!showNewBookDropdown);
   };
 
   const right = <i class="fa-solid fa-chevron-right text-xs"></i>;
@@ -86,16 +101,16 @@ function Navbar() {
           </Link>
           <div className="relative " ref={dropdownRef}>
             <button
-              onClick={toggleNewDropdown}
+              onClick={toggleBookDropdown}
               className={` w-[135px] ${
                 currPath == "/book" || currPath == "/tour"
                   ? "font-semibold"
                   : ""
               }`}
             >
-              Book a Ride {!showNewDropdown ? right : down}
+              Book a Ride {!showBookDropdown ? right : down}
             </button>
-            {showNewDropdown && (
+            {showBookDropdown && (
               <div className="absolute top-12 left-0 z-10 w-[200px] bg-white border border-slate-300 rounded-b-lg">
                 <Link
                   href="/book"
@@ -141,7 +156,11 @@ function Navbar() {
         >
           {session ? name : "Sign In"}
         </Link>
-        <button className="menu-button visible md:hidden" onClick={toggleMenu}>
+        <button
+          className="menu-button visible md:hidden"
+          ref={hamburgerRef}
+          onClick={toggleMenu}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
@@ -174,9 +193,22 @@ function Navbar() {
           <Link href="/" className="hover:bg-slate-50  pl-8 w-full">
             Home {right}
           </Link>
-          <Link href="/book" className="hover:bg-slate-50  pl-8 w-full">
-            Book {right}
-          </Link>
+          <button
+            className="hover:bg-slate-50 text-left pl-8 w-full"
+            onClick={toggleNewBookDropdown}
+          >
+            Book {!showNewBookDropdown ? right : down}
+          </button>
+          {showNewBookDropdown && (
+            <Link href="/book" className="hover:bg-slate-50  pl-12 w-full">
+              Point to point {right}
+            </Link>
+          )}
+          {showNewBookDropdown && (
+            <Link href="/tour" className="hover:bg-slate-50  pl-12 w-full">
+              Tour {right}
+            </Link>
+          )}
           <Link href="/trips" className="hover:bg-slate-50  pl-8 w-full">
             Trips {right}
           </Link>
