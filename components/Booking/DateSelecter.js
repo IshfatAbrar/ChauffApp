@@ -41,7 +41,7 @@ function DateSelecter() {
           className="info-icon pl-2"
           title="You can only book six hours ahead"
         >
-          <i class="fa-solid fa-circle-info"></i>
+          <i className="fa-solid fa-circle-info"></i>
         </div>
       </div>
       <div className="customDatePickerWidth flex w-[100%] px-0">
@@ -69,6 +69,7 @@ const CustomInput = ({ value, onClick, placeholderText }) => (
     type="text"
     value={value ? value : ""}
     onClick={onClick}
+    readOnly
     placeholder={placeholderText}
     className="custom-datepicker-input"
   />

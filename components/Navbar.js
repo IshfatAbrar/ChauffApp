@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { signOut } from "next-auth/react";
 
 import Link from "next/link";
@@ -11,12 +11,16 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
+  const [showNewDropdown, setShowNewDropdown] = useState(false);
 
   const currPath = usePathname();
   const isBook = currPath === "/signin" || currPath === "/signup";
 
   const { data: session } = useSession();
   const name = session?.user?.name;
+
+  const dropdownRef = useRef(null);
+  const newDropdownRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,14 +30,39 @@ function Navbar() {
       setPrevScrollPos(currentScrollPos);
       setShowNavbar(visible);
       setMenuOpen(false);
+      setShowNewDropdown(false);
     };
+
+    const handleClickOutside = (event) => {
+      if (
+        (dropdownRef.current && !dropdownRef.current.contains(event.target)) ||
+        (newDropdownRef.current &&
+          !newDropdownRef.current.contains(event.target))
+      ) {
+        setShowNewDropdown(false);
+        setMenuOpen(false);
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [prevScrollPos]);
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+
+  const toggleNewDropdown = () => {
+    setShowNewDropdown(!showNewDropdown);
+  };
+
+  const right = <i class="fa-solid fa-chevron-right text-xs"></i>;
+  const down = <i class="fa-solid fa-chevron-down text-xs"></i>;
 
   return (
     <div
@@ -48,54 +77,66 @@ function Navbar() {
         <h1 className=" font-serif text-4xl">
           <b>Chauff</b>
         </h1>
-        <div className="gap-5">
+        <div className="flex flex-row gap-4">
           <Link
-            className={` px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/" ? "font-semibold" : ""
-            }`}
+            className={`${currPath == "/" ? "font-semibold" : ""}`}
             href="/"
           >
-            Home &gt;
+            Home {right}
           </Link>
+          <div className="relative " ref={dropdownRef}>
+            <button
+              onClick={toggleNewDropdown}
+              className={` w-[135px] ${
+                currPath == "/book" || currPath == "/tour"
+                  ? "font-semibold"
+                  : ""
+              }`}
+            >
+              Book a Ride {!showNewDropdown ? right : down}
+            </button>
+            {showNewDropdown && (
+              <div className="absolute top-12 left-0 z-10 w-[200px] bg-white border border-slate-300 rounded-b-lg">
+                <Link
+                  href="/book"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Point to Point
+                </Link>
+                <Link
+                  href="/tour"
+                  className="block px-4 py-2 hover:bg-gray-100 rounded-b-lg"
+                >
+                  Tour
+                </Link>
+              </div>
+            )}
+          </div>
           <Link
-            className={` px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/book" ? "font-semibold" : ""
-            }`}
-            href="/book"
-          >
-            Book a Ride &gt;
-          </Link>
-          <Link
-            className={` px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/trips" ? "font-semibold" : ""
-            }`}
+            className={`  ${currPath == "/trips" ? "font-semibold" : ""}`}
             href="/trips"
           >
-            My Trips &gt;
+            My Trips {right}
           </Link>
           <Link
-            className={` px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/about" ? "font-semibold" : ""
-            }`}
+            className={`  ${currPath == "/about" ? "font-semibold" : ""}`}
             href="/about"
           >
-            About Us &gt;
+            About Us {right}
           </Link>
           <Link
-            className={` px-3 cursor-pointer p-2 rounded-full ${
-              currPath == "/contact" ? "font-semibold" : ""
-            }`}
+            className={`  ${currPath == "/contact" ? "font-semibold" : ""}`}
             href="/contact"
           >
-            Contact Us &gt;
+            Contact Us {right}
           </Link>
         </div>
       </div>
       <div className="flex flex-row gap-4">
         <Link
           href={session ? "" : "/signin"}
-          className={`p-2 px-3 bg-slate-200 rounded-full ${
-            session ? " cursor-default" : " cursor-pointer"
+          className={`p-2 px-3 rounded-full cursor-pointer bg-slate-200 ${
+            session ? " cursor-default" : ""
           }`}
         >
           {session ? name : "Sign In"}
@@ -126,52 +167,40 @@ function Navbar() {
         </button>
       </div>
       {menuOpen && (
-        <div className="flex flex-col absolute top-full right-0 bg-white border-b-[2px] border-slate-300 w-full md:hidden">
-          <Link
-            href="/"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
-          >
-            Home &gt;
+        <div
+          className="flex flex-col absolute top-full right-0 bg-white border-b-[2px] border-slate-300 w-full md:hidden"
+          ref={newDropdownRef}
+        >
+          <Link href="/" className="hover:bg-slate-50  pl-8 w-full">
+            Home {right}
           </Link>
-          <Link
-            href="/book"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
-          >
-            Book &gt;
+          <Link href="/book" className="hover:bg-slate-50  pl-8 w-full">
+            Book {right}
           </Link>
-          <Link
-            href="/trips"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
-          >
-            History &gt;
+          <Link href="/trips" className="hover:bg-slate-50  pl-8 w-full">
+            Trips {right}
           </Link>
-          <Link
-            href="/about"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
-          >
-            About Us &gt;
+          <Link href="/about" className="hover:bg-slate-50  pl-8 w-full">
+            About Us {right}
           </Link>
-          <Link
-            href="/contact"
-            className="hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full"
-          >
-            Contact Us &gt;
+          <Link href="/contact" className="hover:bg-slate-50  pl-8 w-full">
+            Contact Us {right}
           </Link>
           <button
             onClick={signOut}
-            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full text-left ${
+            className={`hover:bg-slate-50  pl-8 w-full text-left ${
               session ? "" : "hidden"
             }`}
           >
-            sign Out &gt;
+            sign Out {right}
           </button>
           <Link
             href="/signup"
-            className={`hover:bg-slate-50 px-3 cursor-pointer p-2 pl-8 w-full text-left ${
+            className={`hover:bg-slate-50  pl-8 w-full text-left ${
               session ? "hidden" : ""
             }`}
           >
-            sign Up &gt;
+            sign Up {right}
           </Link>
         </div>
       )}

@@ -14,7 +14,7 @@ function CarListOptions({ distance }) {
   return (
     <div className="mt-5">
       <h2 className="text-[22px] font-bold">Recommeded</h2>
-      <div className="p-2 overflow-auto h-[250px]">
+      <div className="p-2 overflow-auto h-[200px] bg-slate-50">
         {CarListData.map((item, index) => (
           <div
             key={index}

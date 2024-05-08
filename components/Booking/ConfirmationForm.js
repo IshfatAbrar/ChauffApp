@@ -10,6 +10,7 @@ import { createBooking } from "@/lib/actions/booking.actions";
 
 import { SourceContext } from "@/context/SourceContext";
 import { DestinationContext } from "@/context/DestinationContext";
+import { StopoverContext } from "@/context/StopoverContext";
 
 import { CSSTransition } from "react-transition-group";
 import "./ConfirmationForm.css";
@@ -26,6 +27,7 @@ function ConfirmationForm(props) {
   const email = session?.user?.email;
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
+  const { stopover, setStopover } = useContext(StopoverContext);
 
   const timeString = time?.toString() ?? "";
 
@@ -64,6 +66,7 @@ function ConfirmationForm(props) {
         price: props.price,
         pickupLocation: source,
         dropoffLocation: destination,
+        stopoverLocation: stopover,
         status: "requested",
         stripeId: "012343t86325",
       };

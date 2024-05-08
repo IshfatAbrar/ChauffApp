@@ -10,6 +10,8 @@ import {
 } from "@react-google-maps/api";
 import { SourceContext } from "@/context/SourceContext";
 import { DestinationContext } from "@/context/DestinationContext";
+import { StopoverContext } from "@/context/StopoverContext";
+import { IsStopoverContext } from "@/context/IsStopover";
 
 function Map() {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Assuming small screen width is less than 768px
@@ -36,6 +38,8 @@ function Map() {
 
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
+  const { stopover, setStopover } = useContext(StopoverContext);
+  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
 
   const [center, setCenter] = useState({
     lat: -3.745,
@@ -58,7 +62,7 @@ function Map() {
     if (source.length != [] && destination.length != []) {
       directionRoute();
     }
-  }, [source]); // Add map to the dependency array
+  }, [source, isStopover]); // Add map to the dependency array
 
   useEffect(() => {
     if (destination.length != [] && map) {
@@ -72,25 +76,52 @@ function Map() {
       console.log("DIE");
       directionRoute();
     }
-  }, [destination]); // Add map to the dependency array
+  }, [destination, isStopover]); // Add map to the dependency array
+
+  useEffect(() => {
+    if (stopover.length != [] && map) {
+      directionRoute();
+    }
+  }, [stopover]); // Add stopover to the dependency array
 
   const directionRoute = () => {
     const DirectionsService = new google.maps.DirectionsService();
     console.log("DIE");
-    DirectionsService.route(
-      {
-        origin: { lat: source.lat, lng: source.lng },
-        destination: { lat: destination.lat, lng: destination.lng },
-        travelMode: google.maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === google.maps.DirectionsStatus.OK) {
-          setDirectionRoutePoints(result);
-        } else {
-          console.error("Error");
+
+    if (!isStopover) {
+      DirectionsService.route(
+        {
+          origin: { lat: source.lat, lng: source.lng },
+          destination: { lat: destination.lat, lng: destination.lng },
+          travelMode: google.maps.TravelMode.DRIVING,
+          provideRouteAlternatives: true,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setDirectionRoutePoints(result);
+          } else {
+            console.error("Error");
+          }
         }
-      }
-    );
+      );
+    } else {
+      DirectionsService.route(
+        {
+          origin: { lat: source.lat, lng: source.lng },
+          destination: { lat: destination.lat, lng: destination.lng },
+          waypoints: [{ location: { lat: stopover.lat, lng: stopover.lng } }],
+          travelMode: google.maps.TravelMode.DRIVING,
+          provideRouteAlternatives: true,
+        },
+        (result, status) => {
+          if (status === google.maps.DirectionsStatus.OK) {
+            setDirectionRoutePoints(result);
+          } else {
+            console.error("Error calculating directions:", status);
+          }
+        }
+      );
+    }
   };
 
   return (
@@ -141,6 +172,30 @@ function Map() {
             <div className="p-1 bg-white font-semibold shadow-lg inline-block">
               <p className="text-black font-mono text-[18px]">
                 {destination.label}
+              </p>
+            </div>
+          </OverlayViewF>
+        </MarkerF>
+      ) : null}
+
+      {stopover.length != [] ? (
+        <MarkerF
+          position={{ lat: stopover.lat, lng: stopover.lng }}
+          icon={{
+            url: "/placeholder.png",
+            scaledSize: {
+              width: 30,
+              height: 30,
+            },
+          }}
+        >
+          <OverlayViewF
+            position={{ lat: stopover.lat, lng: stopover.lng }}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+          >
+            <div className="p-1 bg-white font-semibold shadow-lg inline-block">
+              <p className="text-black font-mono text-[18px]">
+                {stopover.label}
               </p>
             </div>
           </OverlayViewF>

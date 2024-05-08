@@ -12,6 +12,18 @@ function PreviousBooking() {
   const [bookings, setBookings] = useState([]);
   const { data: session } = useSession();
 
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    setShowLoading(true);
+
+    const timer = setTimeout(() => {
+      setShowLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const email = session?.user?.email;
 
   function extractDate(dateString) {
@@ -118,7 +130,19 @@ function PreviousBooking() {
         ))
       ) : (
         <div className="flex flex-col bg-slate-50 p-4 border-slate-300 border-2 rounded-lg">
-          <h2 className="text-2xl">No previous trips </h2>
+          <h2 className="text-2xl">
+            No previous trips {"    "}
+            {showLoading && (
+              <div
+                className=" text-slate-300 inline-block h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                role="status"
+              >
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
+                  Loading...
+                </span>
+              </div>
+            )}{" "}
+          </h2>
         </div>
       )}
     </div>

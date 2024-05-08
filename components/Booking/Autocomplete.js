@@ -1,19 +1,25 @@
 "use client";
 import { DestinationContext } from "@/context/DestinationContext";
 import { SourceContext } from "@/context/SourceContext";
+import { StopoverContext } from "@/context/StopoverContext";
 import React, { useContext, useEffect, useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
+import { IsStopoverContext } from "@/context/IsStopover";
 
 function Autocomplete(props) {
   const [value, setValue] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
+  const { stopover, setStopover } = useContext(StopoverContext);
+  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
   const type = props.type;
 
   useEffect(() => {
     if (type == "source") {
       setPlaceholder("Pickup Location");
+    } else if (type == "stop") {
+      setPlaceholder("Stopover Location");
     } else {
       setPlaceholder("Dropoff Location");
     }
@@ -29,6 +35,13 @@ function Autocomplete(props) {
         console.log(place);
         if (type == "source") {
           setSource({
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+            name: place.formatted_address,
+            label: place.name,
+          });
+        } else if (type == "stop") {
+          setStopover({
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng(),
             name: place.formatted_address,
@@ -51,6 +64,8 @@ function Autocomplete(props) {
     setValue([]); // Clear the value
     if (type === "source") {
       setSource([]); // Clear the source
+    } else if (type === "stop") {
+      setStopover([]);
     } else {
       setDestination([]); // Clear the destination
     }
@@ -58,8 +73,14 @@ function Autocomplete(props) {
 
   return (
     <div className="flex flex-col">
-      {type == "source" ? <label>Where From?</label> : <label>Where To?</label>}
-      <div className="bg-slate-100 rounded-md">
+      {type == "source" ? (
+        <label>Where From?</label>
+      ) : type === "stop" ? (
+        <label>Need to Stop?</label>
+      ) : (
+        <label>Where To?</label>
+      )}
+      <div className="flex flex-row items-center border-2 border-slate-300 pr-2 rounded-md">
         <GooglePlacesAutocomplete
           selectProps={{
             value,
@@ -69,7 +90,7 @@ function Autocomplete(props) {
             },
             placeholder: placeholder,
             isClearable: true,
-            className: "w-full border-2 border-slate-300 rounded-md",
+            className: "w-[100%]",
             components: {
               DropdownIndicator: false,
               ClearIndicator: () => (
@@ -97,6 +118,18 @@ function Autocomplete(props) {
             },
           }}
         />
+        {type == "stop" ? (
+          <button
+            onClick={() => {
+              setStopover([]);
+              setIsStopover(false);
+            }}
+          >
+            <i className="fa-solid fa-trash text-slate-300"></i>
+          </button>
+        ) : (
+          <></>
+        )}
       </div>
     </div>
   );
