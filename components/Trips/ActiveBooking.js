@@ -108,7 +108,7 @@ function ActiveBooking() {
             <p className="absolute top-0 right-0 mr-4 mt-4 text-gray-500 text-xs md:text-sm">
               {booking.status}{" "}
               <i
-                className="fa-solid fa-circle-dot"
+                className="fa-solid fa-circle-dot fa-fade"
                 style={
                   booking.status === "requested"
                     ? { color: "#FFD43B" }

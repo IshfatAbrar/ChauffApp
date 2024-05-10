@@ -7,19 +7,20 @@ import { StopoverContext } from "@/context/StopoverContext";
 import DateSelecter from "./DateSelecter";
 import CarListOptions from "./CarListOptions";
 import { TimeContext } from "@/context/TimeContext";
-import { IsStopoverContext } from "@/context/IsStopover";
-import TollCalculator from "../Map/TollCalculator";
-import OneStopTollCalculator from "../Map/OneStopTollCalculator";
 import { DistanceContext } from "@/context/DistanceContext";
+import { TollContext } from "@/context/TollContext";
 
 function Booking() {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
-  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
+
   const { time, setTime } = useContext(TimeContext);
   const { distance, setDistance } = useContext(DistanceContext);
+  const { toll, setToll } = useContext(TollContext);
   const [showDistance, setShowDistance] = useState(false);
+  const [error, setError] = useState(false);
+  const [max, setMax] = useState(false);
 
   // const calculateDistance = () => {
   //   if (isStopover === true) {
@@ -47,6 +48,7 @@ function Booking() {
   // };
 
   console.log(distance);
+  console.log(toll);
 
   useEffect(() => {
     if (!source) {
@@ -57,48 +59,97 @@ function Booking() {
     }
   }, [source, destination]);
 
-  useEffect(() => {
-    if (isStopover) {
-      if (stopover.length == []) {
-        setDistance(0);
+  const onSearchHandler = () => {
+    if (!stopover) {
+      if (!source || !destination || !time || !distance) {
+        setError(true);
+        return;
+      }
+    } else {
+      if (
+        !source ||
+        !destination ||
+        !time ||
+        !distance ||
+        stopover.some((stop) => !stop)
+      ) {
+        setError(true);
+        return;
       }
     }
-  }, [isStopover]);
+    setShowDistance(!showDistance);
+    setError(false);
+    return;
+  };
+
+  const handleAddStopover = () => {
+    if (stopover.length < 2) {
+      setStopover((prevStopovers) => [
+        ...prevStopovers,
+        { lat: null, lng: null, name: "", label: "" },
+      ]);
+    }
+  };
+
+  useEffect(() => {
+    if (stopover.length == 2) {
+      setMax(true);
+    } else {
+      setMax(false);
+    }
+  }, [stopover]);
+
+  const handleTrashClick = (index) => {
+    setStopover((prevStopovers) => {
+      return prevStopovers.filter((_, i) => i !== index);
+    });
+  };
 
   return (
     <div className="flex flex-col p-5 md:pt-12">
       <div className="flex flex-col rounded-md p-4 w-full">
-        <h2 className="text-[20px] font-semibold">Booking</h2>
+        <h2 className="text-[20px] font-bold">Booking</h2>
+        {error && (
+          <p className=" bg-red-100 text-red-800 mt-2 text-xs rounded-md p-2">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            {"  "}Please enter all the fields
+          </p>
+        )}
         <div className="flex flex-col gap-2 mt-4 ">
           <Autocomplete type="source" />
-          {isStopover ? <Autocomplete type="stop" /> : <></>}
+          {stopover.map((stop, index) => (
+            <Autocomplete
+              key={index}
+              type="stop"
+              handleTrashClick={handleTrashClick}
+              index={index}
+            />
+          ))}
           <Autocomplete type="dropoff" />
           <button
-            onClick={() => {
-              setIsStopover(true);
-            }}
-            className={`p-2 w-full text-slate-300 bg-slate-50 border-2 border-slate-50 active:border-slate-100 rounded-lg`}
+            onClick={handleAddStopover}
+            className={`p-2  w-full  rounded-lg ${
+              max
+                ? "text-slate-300  border-2 border-slate-100 "
+                : "text-slate-600  border-2 border-slate-200 active:border-slate-300"
+            }`}
           >
-            Add stopover +
+            + Add stopover
           </button>
           <DateSelecter />
 
           <button
-            className={`p-4 bg-slate-900 w-full mt-5 text-white rounded-lg ${
-              !source || !destination || !time
-                ? "opacity-85 cursor-not-allowed"
-                : ""
-            }`}
-            onClick={() => {
-              setShowDistance(!showDistance);
-            }}
+            className={`p-4 bg-black w-full mt-4 text-white rounded-lg`}
+            onClick={onSearchHandler}
           >
             Search
           </button>
         </div>
       </div>
 
-      {distance && showDistance ? <CarListOptions distance={distance} /> : null}
+      {!error && distance && showDistance ? (
+        <CarListOptions distance={distance} />
+      ) : null}
     </div>
   );
 }

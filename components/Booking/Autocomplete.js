@@ -4,21 +4,18 @@ import { SourceContext } from "@/context/SourceContext";
 import { StopoverContext } from "@/context/StopoverContext";
 import React, { useContext, useEffect, useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-import { IsStopoverContext } from "@/context/IsStopover";
 
-function Autocomplete(props) {
+function Autocomplete({ type, index, handleTrashClick }) {
   const [value, setValue] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
-  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
-  const type = props.type;
 
   useEffect(() => {
     if (type == "source") {
       setPlaceholder("Pickup Location");
-    } else if (type == "stop") {
+    } else if (type === "stop") {
       setPlaceholder("Stopover Location");
     } else {
       setPlaceholder("Dropoff Location");
@@ -41,11 +38,15 @@ function Autocomplete(props) {
             label: place.name,
           });
         } else if (type == "stop") {
-          setStopover({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            name: place.formatted_address,
-            label: place.name,
+          setStopover((prevStopover) => {
+            const updatedStopovers = [...prevStopover];
+            updatedStopovers[index] = {
+              lat: place.geometry.location.lat(),
+              lng: place.geometry.location.lng(),
+              name: place.formatted_address,
+              label: place.name,
+            };
+            return updatedStopovers;
           });
         } else {
           console.log("dropoff");
@@ -65,7 +66,11 @@ function Autocomplete(props) {
     if (type === "source") {
       setSource([]); // Clear the source
     } else if (type === "stop") {
-      setStopover([]);
+      setStopover((prevStopover) => {
+        const updatedStopovers = [...prevStopover];
+        updatedStopovers[index] = { lat: null, lng: null, name: "", label: "" };
+        return updatedStopovers;
+      });
     } else {
       setDestination([]); // Clear the destination
     }
@@ -119,12 +124,7 @@ function Autocomplete(props) {
           }}
         />
         {type == "stop" ? (
-          <button
-            onClick={() => {
-              setStopover([]);
-              setIsStopover(false);
-            }}
-          >
+          <button onClick={() => handleTrashClick(index)}>
             <i className="fa-solid fa-trash text-slate-300"></i>
           </button>
         ) : (

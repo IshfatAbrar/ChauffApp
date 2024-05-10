@@ -19,12 +19,15 @@
   border: 2px solid #cbd5e1; /* Remove border */
   outline: none;
   width: 100%; /* Adjust width as needed */
-  border-radius: 4px; /* Add border radius for rounded corners */
+  border-radius: 6px; /* Add border radius for rounded corners */
+  padding: 6px !important;
+  padding-left: 26px !important;
 }
 
 .custom-datepicker-input:focus {
-  border: 1px solid #007bff;
   border: 2px solid #cbd5e1;
+  padding: 6px;
+  padding-left: 26px;
 }
 
 .customDatePickerWidth {
@@ -37,7 +40,7 @@
   font-weight: normal; /* Set font weight as needed */
   background-color: transparent;
   border-radius: 0%;
-  font-size: larger;
+  font-size: x-large;
 }
 
 .react-datepicker__close-icon {
@@ -70,4 +73,8 @@
 .react-datepicker__time-container,
 .react-datepicker__time {
   width: auto; /* Adjust the width of the drop-down */
+}
+
+.react-datepicker__input-container .fa-calendar {
+  color: #cbd5e1; /* Change the color of the calendar icon to slate-400 */
 }

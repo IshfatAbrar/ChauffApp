@@ -11,7 +11,6 @@ import {
 import { SourceContext } from "@/context/SourceContext";
 import { DestinationContext } from "@/context/DestinationContext";
 import { StopoverContext } from "@/context/StopoverContext";
-import { IsStopoverContext } from "@/context/IsStopover";
 
 function Map() {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Assuming small screen width is less than 768px
@@ -39,7 +38,6 @@ function Map() {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
-  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
 
   const [center, setCenter] = useState({
     lat: -3.745,
@@ -62,7 +60,7 @@ function Map() {
     if (source.length != [] && destination.length != []) {
       directionRoute();
     }
-  }, [source, isStopover]); // Add map to the dependency array
+  }, [source, stopover]); // Add map to the dependency array
 
   useEffect(() => {
     if (destination.length != [] && map) {
@@ -76,19 +74,19 @@ function Map() {
       console.log("DIE");
       directionRoute();
     }
-  }, [destination, isStopover]); // Add map to the dependency array
+  }, [destination, stopover]); // Add map to the dependency array
 
   useEffect(() => {
     if (stopover.length != [] && map) {
       directionRoute();
     }
-  }, [stopover]); // Add stopover to the dependency array
+  }, [source, destination, stopover]); // Add stopover to the dependency array
 
   const directionRoute = () => {
     const DirectionsService = new google.maps.DirectionsService();
     console.log("DIE");
 
-    if (!isStopover) {
+    if (stopover.length == []) {
       DirectionsService.route(
         {
           origin: { lat: source.lat, lng: source.lng },
@@ -105,11 +103,19 @@ function Map() {
         }
       );
     } else {
+      // If there are stopovers, construct waypoints array
+      const waypoints = stopover.map((stop) => ({
+        location: { lat: stop.lat, lng: stop.lng },
+      }));
+
+      console.log(waypoints);
+
+      // Calculate route with waypoints
       DirectionsService.route(
         {
           origin: { lat: source.lat, lng: source.lng },
           destination: { lat: destination.lat, lng: destination.lng },
-          waypoints: [{ location: { lat: stopover.lat, lng: stopover.lng } }],
+          waypoints: waypoints,
           travelMode: google.maps.TravelMode.DRIVING,
           provideRouteAlternatives: true,
         },
@@ -123,6 +129,8 @@ function Map() {
       );
     }
   };
+
+  console.log(stopover);
 
   return (
     <GoogleMap
@@ -178,29 +186,32 @@ function Map() {
         </MarkerF>
       ) : null}
 
-      {stopover.length != [] ? (
-        <MarkerF
-          position={{ lat: stopover.lat, lng: stopover.lng }}
-          icon={{
-            url: "/placeholder.png",
-            scaledSize: {
-              width: 30,
-              height: 30,
-            },
-          }}
-        >
-          <OverlayViewF
-            position={{ lat: stopover.lat, lng: stopover.lng }}
-            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-          >
-            <div className="p-1 bg-white font-semibold shadow-lg inline-block">
-              <p className="text-black font-mono text-[18px]">
-                {stopover.label}
-              </p>
-            </div>
-          </OverlayViewF>
-        </MarkerF>
-      ) : null}
+      {stopover.length > 0
+        ? stopover.map((stop, index) => (
+            <MarkerF
+              key={index}
+              position={{ lat: stop.lat, lng: stop.lng }}
+              icon={{
+                url: "/placeholder.png",
+                scaledSize: {
+                  width: 15,
+                  height: 15,
+                },
+              }}
+            >
+              <OverlayViewF
+                position={{ lat: stop.lat, lng: stop.lng }}
+                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+              >
+                <div className="p-1 bg-white font-semibold shadow-lg inline-block">
+                  <p className="text-black font-mono text-[18px]">
+                    {stop.label}
+                  </p>
+                </div>
+              </OverlayViewF>
+            </MarkerF>
+          ))
+        : null}
 
       {source.length !== 0 && destination.length !== 0 && (
         <DirectionsRenderer
@@ -208,7 +219,7 @@ function Map() {
           options={{
             polylineOptions: {
               strokeColor: "#000",
-              strokeWeight: 5,
+              strokeWeight: 4,
             },
             suppressMarkers: true,
           }}

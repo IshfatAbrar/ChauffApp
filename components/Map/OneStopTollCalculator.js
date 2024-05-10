@@ -5,115 +5,103 @@ import axios from "axios";
 import { SourceContext } from "@/context/SourceContext";
 import { DestinationContext } from "@/context/DestinationContext";
 import { StopoverContext } from "@/context/StopoverContext";
-import { IsStopoverContext } from "@/context/IsStopover";
+
 import { TollContext } from "@/context/TollContext";
 import { DistanceContext } from "@/context/DistanceContext";
 
 const OneStopTollCalculator = () => {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
-  const { isStopover, setIsStopover } = useContext(IsStopoverContext);
+
   const { stopover, setStopover } = useContext(StopoverContext);
   const { toll, setToll } = useContext(TollContext);
   const { distance, setDistance } = useContext(DistanceContext);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (source && destination && stopover) {
+    if (source && destination) {
       calculateTolls();
     }
-  }, [source, destination, stopover, isStopover]);
+  }, [source, destination, stopover, stopover.length]);
 
   const calculateTolls = async () => {
     try {
       const apiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
       const apiUrl =
         "https://routes.googleapis.com/directions/v2:computeRoutes";
+      let totalDistance = 0;
+      let totalToll = 0;
 
-      const requestBody = {
-        origin: {
-          location: {
-            latLng: {
-              latitude: source.lat,
-              longitude: source.lng,
-            },
-          },
-        },
-        destination: {
-          location: {
-            latLng: {
-              latitude: stopover.lat,
-              longitude: stopover.lng,
-            },
-          },
-        },
-        travelMode: "DRIVE",
-        extraComputations: ["TOLLS"],
-        routeModifiers: {
-          vehicleInfo: {
-            emissionType: "GASOLINE",
-          },
-        },
-      };
+      const requests = [];
+      setDistance(0);
+      setToll(0);
 
-      const requestBodyTwo = {
-        origin: {
-          location: {
-            latLng: {
-              latitude: stopover.lat,
-              longitude: stopover.lng,
-            },
-          },
-        },
-        destination: {
-          location: {
-            latLng: {
-              latitude: destination.lat,
-              longitude: destination.lng,
-            },
-          },
-        },
-        travelMode: "DRIVE",
-        extraComputations: ["TOLLS"],
-        routeModifiers: {
-          vehicleInfo: {
-            emissionType: "GASOLINE",
-          },
-        },
-      };
+      // Calculate tolls and distances for each segment of the journey
+      const allStops = [source, ...stopover, destination];
+      console.log(allStops);
+      for (let i = 0; i < allStops.length - 1; i++) {
+        const origin = allStops[i];
+        const destination = allStops[i + 1];
 
-      const response = await axios.post(apiUrl, requestBody, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask":
-            "routes.duration,routes.distanceMeters,routes.travelAdvisory.tollInfo,routes.legs.travelAdvisory.tollInfo",
-        },
+        const requestBody = {
+          origin: {
+            location: {
+              latLng: {
+                latitude: origin.lat,
+                longitude: origin.lng,
+              },
+            },
+          },
+          destination: {
+            location: {
+              latLng: {
+                latitude: destination.lat,
+                longitude: destination.lng,
+              },
+            },
+          },
+          travelMode: "DRIVE",
+          extraComputations: ["TOLLS"],
+          routeModifiers: {
+            vehicleInfo: {
+              emissionType: "GASOLINE",
+            },
+          },
+        };
+
+        requests.push(
+          axios.post(apiUrl, requestBody, {
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": apiKey,
+              "X-Goog-FieldMask":
+                "routes.duration,routes.distanceMeters,routes.travelAdvisory.tollInfo,routes.legs.travelAdvisory.tollInfo",
+            },
+          })
+        );
+      }
+
+      // Execute all requests in parallel
+      const responses = await Promise.all(requests);
+      console.log(responses);
+
+      // Process each response to calculate total toll and distance
+      responses.forEach((response) => {
+        const route = response.data.routes[0];
+        totalDistance += route.distanceMeters / 1000;
+      });
+      setDistance(totalDistance);
+
+      responses.forEach((response) => {
+        const route = response.data.routes[0];
+
+        totalToll += parseInt(
+          route.travelAdvisory.tollInfo.estimatedPrice[0].units
+        );
       });
 
-      const distance = response.data.routes[0].distanceMeters / 1000;
-
-      const response2 = await axios.post(apiUrl, requestBodyTwo, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-Goog-Api-Key": apiKey,
-          "X-Goog-FieldMask":
-            "routes.duration,routes.distanceMeters,routes.travelAdvisory.tollInfo,routes.legs.travelAdvisory.tollInfo",
-        },
-      });
-
-      const distance2 = response2.data.routes[0].distanceMeters / 1000;
-      setDistance(distance + distance2);
-
-      const toll_1 = parseInt(
-        response.data.routes[0].travelAdvisory.tollInfo.estimatedPrice[0].units
-      );
-
-      const toll_2 = parseInt(
-        response2.data.routes[0].travelAdvisory.tollInfo.estimatedPrice[0].units
-      );
-
-      setToll(toll_1 + toll_2);
+      // Update state with total toll and distance
+      setToll(totalToll);
       setError(null);
     } catch (error) {
       setError("Error calculating tolls. Please try again.");

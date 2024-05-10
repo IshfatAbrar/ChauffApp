@@ -36,14 +36,12 @@ function Navbar() {
     };
 
     const handleClickOutside = (event) => {
-      console.log(event);
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowBookDropdown(false);
       }
     };
 
     const handleClickOutsideSmall = (event) => {
-      console.log(event);
       if (
         newDropdownRef.current &&
         !newDropdownRef.current.contains(event.target) &&
@@ -76,8 +74,8 @@ function Navbar() {
     setShowNewBookDropdown(!showNewBookDropdown);
   };
 
-  const right = <i class="fa-solid fa-chevron-right text-xs"></i>;
-  const down = <i class="fa-solid fa-chevron-down text-xs"></i>;
+  const right = <i className="fa-solid fa-chevron-right text-xs"></i>;
+  const down = <i className="fa-solid fa-chevron-down text-xs"></i>;
 
   return (
     <div
