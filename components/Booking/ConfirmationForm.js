@@ -61,10 +61,15 @@ function ConfirmationForm(props) {
         detailedLocation: address,
         phoneNumber: phone,
         notes: notes,
-        time: time.toString(), // Convert time to string format
+        time: time.toString(),
         selectedCar: props.selectedCar,
         price: props.price,
-        pickupLocation: source,
+        pickupLocation: {
+          type: "Point",
+          coordinates: [source.lng, source.lat],
+          name: source.name,
+          label: source.label,
+        },
         dropoffLocation: destination,
         stopoverLocation: stopover,
         status: "requested",
