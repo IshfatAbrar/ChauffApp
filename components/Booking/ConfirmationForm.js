@@ -64,20 +64,20 @@ function ConfirmationForm(props) {
         time: time.toString(),
         selectedCar: props.selectedCar,
         price: props.price,
-        pickupLocation: {
+        pickupLocation: source,
+        location: {
           type: "Point",
-          coordinates: [source.lng, source.lat],
-          name: source.name,
-          label: source.label,
+          coordinates: [source.lat, source.lng],
         },
         dropoffLocation: destination,
         stopoverLocation: stopover,
         status: "requested",
         stripeId: "012343t86325",
       };
+
       // Call createBooking function with email and booking details
       const newBooking = await createBooking(email, bookingDetails);
-
+      console.log(newBooking);
       if (newBooking) {
         const form = e.target;
         form.reset();
