@@ -67,7 +67,7 @@ function ConfirmationForm(props) {
         pickupLocation: source,
         location: {
           type: "Point",
-          coordinates: [source.lat, source.lng],
+          coordinates: [source.lng, source.lat],
         },
         dropoffLocation: destination,
         stopoverLocation: stopover,
