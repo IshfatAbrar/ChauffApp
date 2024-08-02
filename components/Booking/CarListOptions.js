@@ -5,7 +5,7 @@ import { ConfirmContext } from "@/context/ConfirmContext";
 
 import ConfirmationForm from "./ConfirmationForm";
 
-function CarListOptions({ distance }) {
+function CarListOptions({ distance, duration }) {
   const [activeIndex, setActiveIndex] = useState();
   const [selectedCar, setSelectedCar] = useState([]);
   const [price, setPrice] = useState();
@@ -45,7 +45,12 @@ function CarListOptions({ distance }) {
       ) : null}
       {price && (
         <div className="z-20 fixed left-0 top-0 w-full lg:w-[35%]">
-          <ConfirmationForm price={price} selectedCar={selectedCar.name} />
+          <ConfirmationForm
+            duration={duration}
+            price={price}
+            selectedCar={selectedCar.name}
+            distance={distance}
+          />
         </div>
       )}
     </div>

@@ -19,6 +19,7 @@ export default function Page() {
   const [stopover, setStopover] = useState([]);
   const [confirm, setConfirm] = useState(false);
   const [time, setTime] = useState(null);
+  const [duration, setDuration] = useState();
 
   const [toll, setToll] = useState(null);
   const [distance, setDistance] = useState(0);
@@ -46,9 +47,9 @@ export default function Page() {
                         <Map />
                       </div>
                       <div className="pt-6 md:pt-16 order-2 md:order-2 lg:order-1 border-r-[2px] border-slate-300">
-                        <OneStopTollCalculator />
+                        <OneStopTollCalculator setDuration={setDuration} />
 
-                        <Booking />
+                        <Booking duration={duration} />
                       </div>
                     </div>
                   ) : null}

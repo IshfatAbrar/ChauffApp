@@ -9,7 +9,7 @@ import { StopoverContext } from "@/context/StopoverContext";
 import { TollContext } from "@/context/TollContext";
 import { DistanceContext } from "@/context/DistanceContext";
 
-const OneStopTollCalculator = () => {
+const OneStopTollCalculator = ({ setDuration }) => {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
 
@@ -89,6 +89,8 @@ const OneStopTollCalculator = () => {
       responses.forEach((response) => {
         const route = response.data.routes[0];
         totalDistance += route.distanceMeters / 1000;
+        const duration = route.duration;
+        setDuration(duration);
       });
       setDistance(totalDistance);
 

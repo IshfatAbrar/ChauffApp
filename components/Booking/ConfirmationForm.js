@@ -63,6 +63,8 @@ function ConfirmationForm(props) {
         notes: notes,
         time: time.toString(),
         selectedCar: props.selectedCar,
+        duration: props.duration,
+        distance: props.distance,
         price: props.price,
         pickupLocation: source,
         location: {

@@ -10,7 +10,7 @@ import { TimeContext } from "@/context/TimeContext";
 import { DistanceContext } from "@/context/DistanceContext";
 import { TollContext } from "@/context/TollContext";
 
-function Booking() {
+function Booking({ duration }) {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
@@ -148,7 +148,7 @@ function Booking() {
       </div>
 
       {!error && distance && showDistance ? (
-        <CarListOptions distance={distance} />
+        <CarListOptions duration={duration} distance={distance} />
       ) : null}
     </div>
   );
