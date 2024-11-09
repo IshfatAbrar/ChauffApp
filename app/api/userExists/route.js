@@ -1,5 +1,5 @@
-import User from "@/lib/models/user.model";
-import { connectMongoDB } from "@/lib/mongodb";
+import User from "../../../lib/models/user.model";
+import { connectMongoDB } from "../../../lib/mongodb";
 import { NextResponse } from "next/server";
 
 export async function POST(req) {
