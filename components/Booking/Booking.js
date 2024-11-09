@@ -1,14 +1,14 @@
 "use client";
 import React, { useContext, useEffect, useState } from "react";
 import Autocomplete from "./Autocomplete";
-import { SourceContext } from "@/context/SourceContext";
-import { DestinationContext } from "@/context/DestinationContext";
-import { StopoverContext } from "@/context/StopoverContext";
+import { SourceContext } from "../../context/SourceContext";
+import { DestinationContext } from "../../context/DestinationContext";
+import { StopoverContext } from "../../context/StopoverContext";
 import DateSelecter from "./DateSelecter";
 import CarListOptions from "./CarListOptions";
-import { TimeContext } from "@/context/TimeContext";
-import { DistanceContext } from "@/context/DistanceContext";
-import { TollContext } from "@/context/TollContext";
+import { TimeContext } from "../../context/TimeContext";
+import { DistanceContext } from "../../context/DistanceContext";
+import { TollContext } from "../../context/TollContext";
 
 function Booking({ duration }) {
   const { source, setSource } = useContext(SourceContext);

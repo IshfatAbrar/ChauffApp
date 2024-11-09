@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { getActiveBookings } from "@/lib/actions/booking.actions";
+import { getActiveBookings } from "../../lib/actions/booking.actions";
 import { useSession } from "next-auth/react";
-import { deleteBooking } from "@/lib/actions/booking.actions";
+import { deleteBooking } from "../../lib/actions/booking.actions";
 
 function ActiveBooking() {
   const [bookings, setBookings] = useState([]);

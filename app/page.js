@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
 
-import Intro from "@/components/Home/Intro";
+import Intro from "./../components/Home/Intro";
 
-import Driver from "@/components/Home/Driver";
-import CoverFlow from "@/components/Home/CoverFlow";
+import Driver from "./../components/Home/Driver";
+import CoverFlow from "./../components/Home/CoverFlow";
 
 // Import Swiper styles
 import "swiper/css";
@@ -17,10 +17,10 @@ import "swiper/css/mousewheel";
 import "swiper/css/autoplay";
 import "swiper/css/effect-fade";
 import "swiper/css/grid";
-import Safety from "@/components/Home/Safety";
-import SecurePay from "@/components/Home/SecurePay";
-import Rewind from "@/components/Home/Rewind";
-import Payment from "@/components/Home/Payment";
+import Safety from "./../components/Home/Safety";
+import SecurePay from "./../components/Home/SecurePay";
+import Rewind from "./../components/Home/Rewind";
+import Payment from "./../components/Home/Payment";
 
 const section_2_buttons = ["Tour", "Airport Transfer", "Corporate Travel"];
 

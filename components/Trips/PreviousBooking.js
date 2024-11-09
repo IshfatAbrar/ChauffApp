@@ -4,7 +4,7 @@ import {
   getActiveBookings,
   getPreviousBookings,
   deleteBooking,
-} from "@/lib/actions/booking.actions";
+} from "../../lib/actions/booking.actions";
 import { useSession } from "next-auth/react";
 import jsPDF from "jspdf";
 

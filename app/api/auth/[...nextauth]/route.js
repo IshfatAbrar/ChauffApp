@@ -1,5 +1,5 @@
-import User from "@/lib/models/user.model";
-import { connectMongoDB } from "@/lib/mongodb";
+import User from "../../../../lib/models/user.model";
+import { connectMongoDB } from "../../../../lib/mongodb";
 import NextAuth from "next-auth/next";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";

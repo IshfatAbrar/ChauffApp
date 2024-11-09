@@ -2,12 +2,12 @@
 
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { SourceContext } from "@/context/SourceContext";
-import { DestinationContext } from "@/context/DestinationContext";
-import { StopoverContext } from "@/context/StopoverContext";
+import { SourceContext } from "../../context/SourceContext";
+import { DestinationContext } from "../../context/DestinationContext";
+import { StopoverContext } from "../../context/StopoverContext";
 
-import { TollContext } from "@/context/TollContext";
-import { DistanceContext } from "@/context/DistanceContext";
+import { TollContext } from "../../context/TollContext";
+import { DistanceContext } from "../../context/DistanceContext";
 
 const OneStopTollCalculator = ({ setDuration }) => {
   const { source, setSource } = useContext(SourceContext);

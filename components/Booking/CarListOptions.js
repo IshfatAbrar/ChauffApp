@@ -1,7 +1,6 @@
-import { CarListData } from "@/util/CarListData";
+import { CarListData } from "../../util/CarListData";
 import React, { useState, useContext } from "react";
 import CarListItem from "./CarListItem";
-import { ConfirmContext } from "@/context/ConfirmContext";
 
 import ConfirmationForm from "./ConfirmationForm";
 
@@ -9,7 +8,7 @@ function CarListOptions({ distance, duration }) {
   const [activeIndex, setActiveIndex] = useState();
   const [selectedCar, setSelectedCar] = useState([]);
   const [price, setPrice] = useState();
-  const { confirm, setConfirm } = useContext(ConfirmContext);
+  const [confirm, setConfirm] = useState(false);
 
   return (
     <div className="mt-5">
@@ -43,13 +42,14 @@ function CarListOptions({ distance, duration }) {
           Request {selectedCar.name}
         </button>
       ) : null}
-      {price && (
+      {price && confirm && (
         <div className="z-20 fixed left-0 top-0 w-full lg:w-[35%]">
           <ConfirmationForm
             duration={duration}
             price={price}
             selectedCar={selectedCar.name}
             distance={distance}
+            setConfirm={setConfirm}
           />
         </div>
       )}

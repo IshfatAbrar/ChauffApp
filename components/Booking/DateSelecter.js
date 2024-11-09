@@ -2,7 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./DateSelecter.css";
-import { TimeContext } from "@/context/TimeContext";
+import { TimeContext } from "../../context/TimeContext";
 
 function DateSelecter() {
   const { time, setTime } = useContext(TimeContext);

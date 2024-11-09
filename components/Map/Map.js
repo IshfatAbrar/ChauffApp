@@ -8,9 +8,9 @@ import {
   OverlayViewF,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { SourceContext } from "@/context/SourceContext";
-import { DestinationContext } from "@/context/DestinationContext";
-import { StopoverContext } from "@/context/StopoverContext";
+import { SourceContext } from "../../context/SourceContext";
+import { DestinationContext } from "../../context/DestinationContext";
+import { StopoverContext } from "../../context/StopoverContext";
 
 function Map() {
   const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Assuming small screen width is less than 768px

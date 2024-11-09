@@ -1,5 +1,5 @@
-import ActiveBooking from "@/components/Trips/ActiveBooking";
-import PreviousBooking from "@/components/Trips/PreviousBooking";
+import ActiveBooking from "../../components/Trips/ActiveBooking";
+import PreviousBooking from "../../components/Trips/PreviousBooking";
 import React from "react";
 
 function page() {

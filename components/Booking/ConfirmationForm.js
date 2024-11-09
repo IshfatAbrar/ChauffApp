@@ -2,25 +2,29 @@
 import React, { useState, useEffect, useContext } from "react";
 
 import { useRouter } from "next/navigation";
-import { ConfirmContext } from "@/context/ConfirmContext";
-import { TimeContext } from "@/context/TimeContext";
+import { TimeContext } from "../../context/TimeContext";
 import { useSession } from "next-auth/react";
-import { getPhone } from "@/lib/actions/booking.actions";
-import { createBooking } from "@/lib/actions/booking.actions";
+import { getPhone } from "../../lib/actions/booking.actions";
+import { createBooking } from "../../lib/actions/booking.actions";
 
-import { SourceContext } from "@/context/SourceContext";
-import { DestinationContext } from "@/context/DestinationContext";
-import { StopoverContext } from "@/context/StopoverContext";
+import { SourceContext } from "../../context/SourceContext";
+import { DestinationContext } from "../../context/DestinationContext";
+import { StopoverContext } from "../../context/StopoverContext";
 
 import { CSSTransition } from "react-transition-group";
 import "./ConfirmationForm.css";
 
-function ConfirmationForm(props) {
+function ConfirmationForm({
+  selectedCar,
+  distance,
+  duration,
+  price,
+  setConfirm,
+}) {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const router = useRouter();
-  const { confirm, setConfirm } = useContext(ConfirmContext);
   const { time, setTime } = useContext(TimeContext);
   const { data: session } = useSession();
   const name = session?.user?.name;
@@ -30,10 +34,6 @@ function ConfirmationForm(props) {
   const { stopover, setStopover } = useContext(StopoverContext);
 
   const timeString = time?.toString() ?? "";
-
-  useEffect(() => {
-    setConfirm(true);
-  }, []);
 
   useEffect(() => {
     const fetchPhone = async () => {
@@ -62,10 +62,10 @@ function ConfirmationForm(props) {
         phoneNumber: phone,
         notes: notes,
         time: time.toString(),
-        selectedCar: props.selectedCar,
-        duration: props.duration,
-        distance: props.distance,
-        price: props.price,
+        selectedCar: selectedCar,
+        duration: duration,
+        distance: distance,
+        price: price,
         pickupLocation: source,
         location: {
           type: "Point",
@@ -86,11 +86,12 @@ function ConfirmationForm(props) {
         router.push("/trips");
       }
       // Redirect user to payment page
-      // router.push("/payment?amount=" + props.price);
+      // router.push("/payment?amount=" + price);
     } catch (error) {
       console.error("Error creating booking:", error);
       // Handle error
     }
+    router.push("/payment");
   };
   return (
     <CSSTransition
@@ -184,13 +185,13 @@ function ConfirmationForm(props) {
                 <label htmlFor="car" className=" font-semibold mb-1">
                   Selected Car
                 </label>
-                <p>{props.selectedCar}</p>
+                <p>{selectedCar}</p>
               </div>
               <div className="mb-4">
                 <label htmlFor="payment" className="font-semibold mb-1">
                   Payment Amount
                 </label>
-                <p>{props.price}</p>
+                <p>{price}</p>
               </div>
               <button className="bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800">
                 Confirm Ride
