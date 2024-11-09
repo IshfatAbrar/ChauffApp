@@ -1,10 +1,10 @@
 import User from "../../../../lib/models/user.model";
 import { connectMongoDB } from "../../../../lib/mongodb";
-import NextAuth from "next-auth/next";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
-export const authOptions = {
+const authOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -29,6 +29,7 @@ export const authOptions = {
           return user;
         } catch (error) {
           console.log("Error: ", error);
+          return null;
         }
       },
     }),
@@ -43,6 +44,6 @@ export const authOptions = {
   },
 };
 
-const handler = NextAuth(authOptions);
+const handler = (req, res) => NextAuth(req, res, authOptions);
 
 export { handler as GET, handler as POST };
