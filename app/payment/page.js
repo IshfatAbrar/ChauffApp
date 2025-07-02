@@ -11,10 +11,25 @@ function Payment() {
   );
 
   const [clientSecret, setClientSecret] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState(null); // Store existing payment method
   const { data: session } = useSession();
   const email = session?.user?.email;
 
   useEffect(() => {
+    const fetchPaymentMethod = async () => {
+      try {
+        const res = await fetch("/api/get-payment-method", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        setPaymentMethod(data.paymentMethod); // Set the payment method if exists
+      } catch (error) {
+        console.error("Error fetching payment method:", error);
+      }
+    };
+
     const createSetupIntent = async () => {
       try {
         const res = await fetch("/api/create-setup-intent", {
@@ -30,18 +45,17 @@ function Payment() {
     };
 
     if (email) {
+      fetchPaymentMethod(); // Fetch existing payment method
       createSetupIntent();
     }
   }, [email]);
 
-  const options = {
-    clientSecret: clientSecret,
-  };
+  const options = { clientSecret: clientSecret };
 
   return (
     clientSecret && (
       <Elements stripe={stripePromise} options={options}>
-        <CheckoutForm />
+        <CheckoutForm paymentMethod={paymentMethod} />
       </Elements>
     )
   );

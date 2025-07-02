@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import Autocomplete from "./Autocomplete";
 import { SourceContext } from "../../context/SourceContext";
 import { DestinationContext } from "../../context/DestinationContext";
@@ -10,7 +10,7 @@ import { TimeContext } from "../../context/TimeContext";
 import { DistanceContext } from "../../context/DistanceContext";
 import { TollContext } from "../../context/TollContext";
 
-function Booking({ duration }) {
+function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
@@ -22,33 +22,7 @@ function Booking({ duration }) {
   const [error, setError] = useState(false);
   const [max, setMax] = useState(false);
 
-  // const calculateDistance = () => {
-  //   if (isStopover === true) {
-  //     const dist_1 = google.maps.geometry.spherical.computeDistanceBetween(
-  //       { lat: parseFloat(source.lat), lng: parseFloat(source.lng) },
-  //       { lat: parseFloat(stopover.lat), lng: parseFloat(stopover.lng) }
-  //     );
-
-  //     const dist_2 = google.maps.geometry.spherical.computeDistanceBetween(
-  //       { lat: parseFloat(stopover.lat), lng: parseFloat(stopover.lng) },
-  //       { lat: parseFloat(destination.lat), lng: parseFloat(destination.lng) }
-  //     );
-
-  //     console.log((dist_1 + dist_2) * 0.00097891362);
-  //     setDistance((dist_1 + dist_2) * 0.00097891362);
-  //   } else {
-  //     const dist = google.maps.geometry.spherical.computeDistanceBetween(
-  //       { lat: parseFloat(source.lat), lng: parseFloat(source.lng) },
-  //       { lat: parseFloat(destination.lat), lng: parseFloat(destination.lng) }
-  //     );
-
-  //     console.log(dist / 1000);
-  //     setDistance(dist / 1000);
-  //   }
-  // };
-
-  console.log(distance);
-  console.log(toll);
+  const bottomRef = useRef(null); // Reference for scrolling to bottom
 
   useEffect(() => {
     if (!source) {
@@ -58,6 +32,12 @@ function Booking({ duration }) {
       setDistance(0);
     }
   }, [source, destination]);
+
+  const panDowntoBottom = () => {
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 200);
+  };
 
   const onSearchHandler = () => {
     if (!stopover) {
@@ -79,7 +59,8 @@ function Booking({ duration }) {
     }
     setShowDistance(!showDistance);
     setError(false);
-    return;
+    panDowntoBottom();
+    // Scroll to bottom after a 1-second delay
   };
 
   const handleAddStopover = () => {
@@ -111,7 +92,7 @@ function Booking({ duration }) {
         <h2 className="text-[20px] font-bold">Booking</h2>
         {error && (
           <p className=" bg-red-100 text-red-800 mt-2 text-xs rounded-md p-2">
-            <i class="fa-solid fa-triangle-exclamation"></i>
+            <i className="fa-solid fa-triangle-exclamation"></i>
             {"  "}Please enter all the fields
           </p>
         )}
@@ -128,10 +109,10 @@ function Booking({ duration }) {
           <Autocomplete type="dropoff" />
           <button
             onClick={handleAddStopover}
-            className={`p-2  w-full  rounded-lg ${
+            className={`p-2 w-full rounded-lg ${
               max
-                ? "text-slate-300  border-2 border-slate-100 "
-                : "text-slate-600  border-2 border-slate-200 active:border-slate-300"
+                ? "text-slate-300 border-2 border-slate-100"
+                : "text-slate-600 border-2 border-slate-200 active:border-slate-300"
             }`}
           >
             + Add stopover
@@ -139,7 +120,7 @@ function Booking({ duration }) {
           <DateSelecter />
 
           <button
-            className={`p-4 bg-black w-full mt-4 text-white rounded-lg`}
+            className="p-4 bg-black w-full mt-4 text-white rounded-lg"
             onClick={onSearchHandler}
           >
             Search
@@ -148,7 +129,15 @@ function Booking({ duration }) {
       </div>
 
       {!error && distance && showDistance ? (
-        <CarListOptions duration={duration} distance={distance} />
+        <div ref={bottomRef}>
+          <CarListOptions
+            duration={duration}
+            distance={distance}
+            panDowntoBottom={panDowntoBottom}
+            setIsPaymentModalOpen={setIsPaymentModalOpen}
+            paymentMethod={paymentMethod}
+          />
+        </div>
       ) : null}
     </div>
   );

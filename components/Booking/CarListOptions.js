@@ -4,7 +4,13 @@ import CarListItem from "./CarListItem";
 
 import ConfirmationForm from "./ConfirmationForm";
 
-function CarListOptions({ distance, duration }) {
+function CarListOptions({
+  distance,
+  duration,
+  panDowntoBottom,
+  setIsPaymentModalOpen,
+  paymentMethod,
+}) {
   const [activeIndex, setActiveIndex] = useState();
   const [selectedCar, setSelectedCar] = useState([]);
   const [price, setPrice] = useState();
@@ -13,7 +19,7 @@ function CarListOptions({ distance, duration }) {
   return (
     <div className="mt-5">
       <h2 className="text-[22px] font-bold">Recommeded</h2>
-      <div className="p-2 overflow-auto h-[200px] bg-slate-50">
+      <div className="p-2 overflow-auto bg-slate-50">
         {CarListData.map((item, index) => (
           <div
             key={index}
@@ -22,24 +28,37 @@ function CarListOptions({ distance, duration }) {
             onClick={() => {
               setActiveIndex(index);
               setSelectedCar(item);
+              panDowntoBottom();
             }}
           >
             <CarListItem car={item} distance={distance} />
           </div>
         ))}
       </div>
-      {selectedCar?.name ? (
+      {selectedCar?.name && paymentMethod ? (
         <button
           className=" z-10 flex md:fixed mt-2
             bottom-5 right-5 md:left-5 md:right-auto  shadow-xl
               p-3 bg-black text-white text-sm lg:text-lg  rounded-lg
-              text-center"
+              text-center "
           onClick={() => {
             setPrice((selectedCar.amount * distance).toFixed(2));
             setConfirm(true);
           }}
         >
           Request {selectedCar.name}
+        </button>
+      ) : selectedCar?.name ? (
+        <button
+          className=" z-10 flex md:fixed mt-2
+        bottom-5 right-5 md:left-5 md:right-auto  shadow-xl
+          p-3 bg-black text-white text-sm lg:text-lg  rounded-lg
+          text-center"
+          onClick={() => {
+            setIsPaymentModalOpen(true);
+          }}
+        >
+          Add Payment Method
         </button>
       ) : null}
       {price && confirm && (
@@ -50,6 +69,8 @@ function CarListOptions({ distance, duration }) {
             selectedCar={selectedCar.name}
             distance={distance}
             setConfirm={setConfirm}
+            paymentMethod={paymentMethod}
+            setIsPaymentModalOpen={setIsPaymentModalOpen}
           />
         </div>
       )}

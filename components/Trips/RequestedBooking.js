@@ -1,10 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { getActiveBookings } from "../../lib/actions/booking.actions";
+import { getRequestedBookings } from "../../lib/actions/booking.actions";
 import { useSession } from "next-auth/react";
 import { deleteBooking } from "../../lib/actions/booking.actions";
 
-function ActiveBooking() {
+function RequestedBooking() {
   const [bookings, setBookings] = useState([]);
   const { data: session } = useSession();
 
@@ -56,17 +56,17 @@ function ActiveBooking() {
   }
 
   useEffect(() => {
-    const fetchActiveBookings = async () => {
+    const fetchRequestedBookings = async () => {
       try {
-        const tempBookings = await getActiveBookings(email);
+        const tempBookings = await getRequestedBookings(email);
         setBookings(tempBookings || []);
       } catch (error) {
-        console.error("Error fetching active bookings:", error);
+        console.error("Error fetching requested bookings:", error);
       }
     };
 
     if (email) {
-      fetchActiveBookings();
+      fetchRequestedBookings();
     }
   }, [email]);
 
@@ -75,7 +75,7 @@ function ActiveBooking() {
     try {
       await deleteBooking(id);
       // After successful cancellation, fetch updated bookings
-      const tempBookings = await getActiveBookings(email);
+      const tempBookings = await getRequestedBookings(email);
       setBookings(tempBookings || []);
     } catch (error) {
       console.error("Error cancelling booking:", error);
@@ -84,7 +84,7 @@ function ActiveBooking() {
 
   return (
     <div className=" mb-12">
-      <h2 className="mb-4 text-2xl font-bold">Active Bookings</h2>
+      <h2 className="mb-4 text-2xl font-bold">Requested Bookings</h2>
       {bookings.length > 0 ? (
         bookings.map((booking) => (
           <div
@@ -130,7 +130,7 @@ function ActiveBooking() {
       ) : (
         <div className="flex flex-col bg-slate-50 p-4 border-slate-300 border-2 rounded-lg">
           <h2 className="text-2xl">
-            No active trips {"    "}
+            No requested trips {"    "}
             {showLoading && (
               <div
                 className="text-slate-300 inline-block h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -148,4 +148,4 @@ function ActiveBooking() {
   );
 }
 
-export default ActiveBooking;
+export default RequestedBooking;

@@ -36,6 +36,7 @@ export default function Home() {
       <img
         src="choose_chauff.jpeg"
         className=" w-full h-[400px] object-cover"
+        alt="Choose Chauff Image"
       ></img>
       <Safety />
 

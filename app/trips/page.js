@@ -1,6 +1,9 @@
-import ActiveBooking from "../../components/Trips/ActiveBooking";
+"use client";
 import PreviousBooking from "../../components/Trips/PreviousBooking";
+import OngoingBooking from "../../components/Trips/OngoingBooking";
 import React from "react";
+import RequestedBooking from "../../components/Trips/RequestedBooking";
+import StepProgress from "../../components/Trips/StepProgress";
 
 function page() {
   return (
@@ -17,7 +20,8 @@ function page() {
         </h1>
       </div>
       <div className="px-8 lg:px-[15%] pt-12">
-        <ActiveBooking />
+        <OngoingBooking />
+        <RequestedBooking />
         <PreviousBooking />
       </div>
     </div>

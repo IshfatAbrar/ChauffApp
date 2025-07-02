@@ -20,6 +20,8 @@ function ConfirmationForm({
   duration,
   price,
   setConfirm,
+  paymentMethod,
+  setIsPaymentModalOpen,
 }) {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
@@ -74,7 +76,7 @@ function ConfirmationForm({
         dropoffLocation: destination,
         stopoverLocation: stopover,
         status: "requested",
-        stripeId: "012343t86325",
+        stripeId: paymentMethod?.id,
       };
 
       // Call createBooking function with email and booking details
@@ -91,7 +93,6 @@ function ConfirmationForm({
       console.error("Error creating booking:", error);
       // Handle error
     }
-    router.push("/payment");
   };
   return (
     <CSSTransition
@@ -100,7 +101,10 @@ function ConfirmationForm({
       classNames="confirmation-form"
       unmountOnExit
     >
-      <div className={` bg-gray-50 p-4 pb-8`}>
+      <div
+        className={` bg-gray-50 p-4 pb-8`}
+        style={{ height: window.innerHeight }}
+      >
         <div>
           <button
             onClick={handleCloseClick}
@@ -127,7 +131,7 @@ function ConfirmationForm({
                 <label className="font-semibold mb-1">Email</label>
                 <p>{email}</p>
               </div>
-              <div className="mb-4">
+              <div className="mb-2">
                 <label htmlFor="phone" className=" font-semibold mb-1">
                   Phone Number
                 </label>
@@ -140,6 +144,25 @@ function ConfirmationForm({
                   className="w-full border rounded-md p-2"
                   placeholder={phone}
                 />
+              </div>
+              <div className="mb-4">
+                <label className="font-semibold mb-1">Payment Method</label>
+                <div className="flex flex-col justify-between">
+                  <p>
+                    {paymentMethod.card.brand.charAt(0).toUpperCase() +
+                      paymentMethod.card.brand.slice(1)}{" "}
+                    card ending with ****
+                    {paymentMethod?.card.last4}
+                  </p>
+                  <p
+                    className=" hover:underline cursor-pointer text-slate-500 text-xs"
+                    onClick={() => {
+                      setIsPaymentModalOpen(true);
+                    }}
+                  >
+                    Use another card?
+                  </p>
+                </div>
               </div>
               <h3 className=" text-lg font-bold mb-4">
                 Additional Instructions
@@ -162,15 +185,15 @@ function ConfirmationForm({
                 <label htmlFor="notes" className="block font-semibold mb-1">
                   Notes
                 </label>
-                <textarea
+                <input
+                  type="text"
                   id="notes"
                   className="w-full border rounded-md p-2"
                   onChange={(e) => {
                     setNotes(e.target.value);
                   }}
                   placeholder="Enter any additional notes"
-                  rows="3"
-                ></textarea>
+                />
               </div>
             </div>
             <div>
