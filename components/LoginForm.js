@@ -1,5 +1,5 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -14,17 +14,33 @@ export default function LoginForm() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      setError("All fields are necessary.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await signIn("credentials", {
         email,
         password,
-        redirect: false, // Set redirect to false to handle redirect manually
+        redirect: false, // handle redirect manually
       });
 
-      if (res.error) {
+      if (res?.error) {
         setError("Invalid credentials");
+        setLoading(false);
+        return;
+      }
+
+      // Get the current session to determine account type
+      const session = await getSession();
+
+      // Fleet accounts always go to the fleet dashboard
+      if (session?.user?.role === "fleet") {
+        router.push("/fleet/dashboard");
         setLoading(false);
         return;
       }
@@ -35,20 +51,17 @@ export default function LoginForm() {
 
       // Redirect to the intended page after successful login
       if (callbackUrl) {
-        window.location.href = callbackUrl;
-      } else if (res.url) {
-        window.location.href = res.url;
+        router.push(callbackUrl);
+      } else if (res?.url) {
+        router.push(res.url);
+      } else {
+        router.push("/");
       }
+
       setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
-    }
-
-    if (!email || !password) {
-      setError("All fields are necessary.");
-      setLoading(false);
-      return;
     }
   };
 

@@ -6,10 +6,14 @@ import { TimeContext } from "../../context/TimeContext";
 import { useSession } from "next-auth/react";
 import { getPhone } from "../../lib/actions/booking.actions";
 import { createBooking } from "../../lib/actions/booking.actions";
+import { updateBookingPaymentIntent } from "../../lib/actions/booking.actions";
+import { deleteBooking } from "../../lib/actions/booking.actions";
+import { formatCurrency } from "../../lib/utils/currency";
 
 import { SourceContext } from "../../context/SourceContext";
 import { DestinationContext } from "../../context/DestinationContext";
 import { StopoverContext } from "../../context/StopoverContext";
+import { TollContext } from "../../context/TollContext";
 
 import { CSSTransition } from "react-transition-group";
 import "./ConfirmationForm.css";
@@ -22,10 +26,13 @@ function ConfirmationForm({
   setConfirm,
   paymentMethod,
   setIsPaymentModalOpen,
+  customerRegion,
+  currency,
 }) {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const { time, setTime } = useContext(TimeContext);
   const { data: session } = useSession();
@@ -34,14 +41,21 @@ function ConfirmationForm({
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
+  const { toll } = useContext(TollContext);
 
   const timeString = time?.toString() ?? "";
+
+  // Use the customer ID from the payment method object to guarantee they match.
+  // Fetching the customer ID separately via /api/get-customer-id can return a
+  // different customer record (duplicate emails in Stripe), causing the
+  // "No such PaymentMethod" error when creating the payment intent.
+  const stripeCustomerId = paymentMethod?.customer ?? "";
 
   useEffect(() => {
     const fetchPhone = async () => {
       try {
         const userPhone = await getPhone(email);
-        setPhone(userPhone);
+        setPhone(userPhone ? String(userPhone) : "");
       } catch (error) {
         console.error("Error fetching phone number:", error);
       }
@@ -58,7 +72,16 @@ function ConfirmationForm({
 
   const createBookingHandler = async (e) => {
     e.preventDefault();
+
+    if (!stripeCustomerId || !paymentMethod?.id) {
+      alert("Payment information is missing. Please refresh and try again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
+      // Step 1: Create booking first (server assigns chauffeur/fleet)
       const bookingDetails = {
         detailedLocation: address,
         phoneNumber: phone,
@@ -67,6 +90,7 @@ function ConfirmationForm({
         selectedCar: selectedCar,
         duration: duration,
         distance: distance,
+        toll: toll || 0,
         price: price,
         pickupLocation: source,
         location: {
@@ -76,24 +100,94 @@ function ConfirmationForm({
         dropoffLocation: destination,
         stopoverLocation: stopover,
         status: "requested",
-        stripeId: paymentMethod?.id,
+        customerRegion: customerRegion || "US", // Customer's region
+        currency: currency || "USD", // Customer's currency
+        stripeCustomerId: stripeCustomerId,
+        stripePaymentMethodId: paymentMethod?.id,
+        payment: {
+          status: "pending",
+        },
       };
 
-      // Call createBooking function with email and booking details
       const newBooking = await createBooking(email, bookingDetails);
-      console.log(newBooking);
+      console.log("Booking created:", newBooking);
+      if (!newBooking?._id) {
+        throw new Error("Failed to create booking");
+      }
+
+      // Step 2: Create payment authorization hold as a destination charge to Fleet
+      console.log(
+        `Creating payment authorization hold for ${currency} ${price} in region ${customerRegion}`,
+      );
+      const paymentResponse = await fetch("/api/create-payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: price,
+          currency: currency?.toLowerCase() || "usd",
+          customerId: stripeCustomerId,
+          paymentMethodId: paymentMethod.id,
+          bookingId: newBooking._id,
+          customerRegion: customerRegion || "US",
+          metadata: {
+            selectedCar: selectedCar,
+            pickupLocation: source.name,
+            dropoffLocation: destination.name,
+          },
+        }),
+      });
+
+      const paymentData = await paymentResponse.json();
+
+      if (!paymentData.success) {
+        // Roll back booking if authorization fails
+        try {
+          await deleteBooking(newBooking._id);
+        } catch (e) {}
+
+        if (paymentData.requiresAction) {
+          alert(
+            "Your card requires additional authentication. Please use a different card or contact your bank.",
+          );
+        } else {
+          alert(
+            `Payment authorization failed: ${paymentData.error || "Unknown error"}`,
+          );
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
+      console.log(
+        "Payment authorization successful:",
+        paymentData.paymentIntentId,
+      );
+
+      // Step 3: Update booking with payment intent ID
+      await updateBookingPaymentIntent(
+        newBooking._id,
+        paymentData.paymentIntentId,
+      );
+
       if (newBooking) {
         const form = e.target;
         form.reset();
+        alert(
+          `Booking confirmed! ${formatCurrency(
+            price,
+            currency || "USD",
+          )} has been authorized on your card and will be charged when the ride is completed.`,
+        );
         router.push("/trips");
       }
-      // Redirect user to payment page
-      // router.push("/payment?amount=" + price);
     } catch (error) {
       console.error("Error creating booking:", error);
-      // Handle error
+      alert("There was an error creating your booking. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   return (
     <CSSTransition
       in={confirm}
@@ -102,126 +196,159 @@ function ConfirmationForm({
       unmountOnExit
     >
       <div
-        className={` bg-gray-50 p-4 pb-8`}
+        className="bg-white p-4 pb-10 overflow-y-scroll no-scrollbar border-r border-slate-200"
         style={{ height: window.innerHeight }}
       >
-        <div>
+        {/* Header */}
+        <div className="flex items-center justify-between pt-24 mb-6">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-0.5">
+              Almost there
+            </p>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Confirm Your Ride
+            </h2>
+          </div>
           <button
             onClick={handleCloseClick}
-            className=" absolute right-4 p-1 md:mt-12 md:mr-2 bg-transparent rounded-full"
+            className="p-2 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 transition shadow-sm"
           >
-            <h2 className="h-6 w-6 text-gray-400 hover:text-gray-700">
-              <i class="fa-solid fa-xmark"></i>
-            </h2>
+            <i className="fa-solid fa-xmark text-sm"></i>
           </button>
-          <h2 className=" text-xl font-bold mb-4 mt-16">
-            <i class="fas fa-receipt"></i> Confirmation Form
-          </h2>
-          <form
-            onSubmit={createBookingHandler}
-            className="text-sm grid grid-cols-1  gap-6 bg-white p-4 rounded-lg"
-          >
-            <div>
-              <h3 className=" text-lg font-bold mb-4">Your Information</h3>
-              <div className="mb-2 ">
-                <label className="font-semibold mb-1">Name</label>
-                <p>{name}</p>
-              </div>
-              <div className="mb-2 ">
-                <label className="font-semibold mb-1">Email</label>
-                <p>{email}</p>
-              </div>
-              <div className="mb-2">
-                <label htmlFor="phone" className=" font-semibold mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                  }}
-                  className="w-full border rounded-md p-2"
-                  placeholder={phone}
-                />
-              </div>
-              <div className="mb-4">
-                <label className="font-semibold mb-1">Payment Method</label>
-                <div className="flex flex-col justify-between">
-                  <p>
-                    {paymentMethod.card.brand.charAt(0).toUpperCase() +
-                      paymentMethod.card.brand.slice(1)}{" "}
-                    card ending with ****
-                    {paymentMethod?.card.last4}
-                  </p>
-                  <p
-                    className=" hover:underline cursor-pointer text-slate-500 text-xs"
-                    onClick={() => {
-                      setIsPaymentModalOpen(true);
-                    }}
-                  >
-                    Use another card?
-                  </p>
-                </div>
-              </div>
-              <h3 className=" text-lg font-bold mb-4">
-                Additional Instructions
-              </h3>
-              <div className="mb-4">
-                <label htmlFor="address" className="block font-semibold mb-1">
-                  Detailed Address
-                </label>
-                <input
-                  type="text"
-                  id="address"
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                  }}
-                  className="w-full border rounded-md p-2"
-                  placeholder="Enter your address"
-                />
-              </div>
-              <div className="mb-4">
-                <label htmlFor="notes" className="block font-semibold mb-1">
-                  Notes
-                </label>
-                <input
-                  type="text"
-                  id="notes"
-                  className="w-full border rounded-md p-2"
-                  onChange={(e) => {
-                    setNotes(e.target.value);
-                  }}
-                  placeholder="Enter any additional notes"
-                />
-              </div>
+        </div>
+
+        <form
+          onSubmit={createBookingHandler}
+          className="flex flex-col gap-4 text-sm"
+        >
+          {/* Your Information */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+              Your information
+            </p>
+            <div className="mb-3">
+              <label className="text-xs text-slate-500 mb-0.5 block">
+                Name
+              </label>
+              <p className="text-slate-900 font-medium">{name}</p>
+            </div>
+            <div className="mb-3">
+              <label className="text-xs text-slate-500 mb-0.5 block">
+                Email
+              </label>
+              <p className="text-slate-900 font-medium">{email}</p>
+            </div>
+            <div className="mb-3">
+              <label
+                htmlFor="phone"
+                className="text-xs text-slate-500 mb-1 block"
+              >
+                Phone Number
+              </label>
+              <input
+                type="text"
+                id="phone"
+                value={phone || ""}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                placeholder="Enter your phone number"
+              />
             </div>
             <div>
-              <h3 className=" text-lg font-bold mb-4">Pickup Details</h3>
-              <div className="mb-2 ">
-                <label className="font-semibold mb-1">
-                  Date & Time of Pickup
-                </label>
-                <p>{timeString}</p>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="car" className=" font-semibold mb-1">
-                  Selected Car
-                </label>
-                <p>{selectedCar}</p>
-              </div>
-              <div className="mb-4">
-                <label htmlFor="payment" className="font-semibold mb-1">
-                  Payment Amount
-                </label>
-                <p>{price}</p>
-              </div>
-              <button className="bg-slate-900 text-white py-2 px-4 rounded-md hover:bg-slate-800">
-                Confirm Ride
+              <label className="text-xs text-slate-500 mb-1 block">
+                Payment Method
+              </label>
+              <p className="text-slate-900 font-medium">
+                {paymentMethod.card.brand.charAt(0).toUpperCase() +
+                  paymentMethod.card.brand.slice(1)}{" "}
+                ····{paymentMethod?.card.last4}
+              </p>
+              <button
+                type="button"
+                className="text-[11px] text-slate-400 hover:text-slate-600 mt-1 transition"
+                onClick={() => setIsPaymentModalOpen(true)}
+              >
+                Use another card?
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Additional Instructions */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+              Additional instructions
+            </p>
+            <div className="mb-3">
+              <label
+                htmlFor="address"
+                className="text-xs text-slate-500 mb-1 block"
+              >
+                Detailed Address
+              </label>
+              <input
+                type="text"
+                id="address"
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                placeholder="Apt, suite, floor, etc."
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="notes"
+                className="text-xs text-slate-500 mb-1 block"
+              >
+                Notes for driver
+              </label>
+              <input
+                type="text"
+                id="notes"
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                placeholder="Any special instructions"
+              />
+            </div>
+          </div>
+
+          {/* Pickup Details */}
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+              Pickup details
+            </p>
+            <div className="mb-3">
+              <label className="text-xs text-slate-500 mb-0.5 block">
+                Date & Time
+              </label>
+              <p className="text-slate-900 font-medium">{timeString}</p>
+            </div>
+            <div className="mb-3">
+              <label className="text-xs text-slate-500 mb-0.5 block">
+                Vehicle
+              </label>
+              <p className="text-slate-900 font-medium">{selectedCar}</p>
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 mb-0.5 block">
+                Total
+              </label>
+              <p className="text-slate-900 font-semibold text-base">
+                {formatCurrency(price, currency || "USD")}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting || !stripeCustomerId || !paymentMethod?.id}
+            className={`w-full py-3 rounded-full text-white text-sm font-semibold shadow-md transition ${
+              isSubmitting || !stripeCustomerId || !paymentMethod?.id
+                ? "bg-slate-300 cursor-not-allowed"
+                : "bg-slate-900 hover:bg-slate-800"
+            }`}
+          >
+            {isSubmitting ? "Processing..." : "Confirm Ride"}
+          </button>
+        </form>
       </div>
     </CSSTransition>
   );

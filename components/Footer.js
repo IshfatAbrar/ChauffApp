@@ -13,17 +13,11 @@ function Footer() {
       }`}
     >
       <div className="flex flex-row gap-12" id="links">
-        <a href="/home" className="text-slate-500 hover:text-slate-900">
-          Home
-        </a>
         <a href="/about" className="text-slate-500 hover:text-slate-900">
           About
         </a>
         <a href="/contact" className="text-slate-500 hover:text-slate-900">
           Contact
-        </a>
-        <a href="/history" className="text-slate-500 hover:text-slate-900">
-          History
         </a>
       </div>
       <div id="socials" className="flex flex-row gap-12 text-xl">

@@ -84,43 +84,46 @@ function RequestedBooking() {
 
   return (
     <div className=" mb-12">
-      <h2 className="mb-4 text-2xl font-bold">Requested Bookings</h2>
+      <h2 className="mb-4 text-sm font-semibold tracking-[0.25em] uppercase text-slate-400">
+        Upcoming requests
+      </h2>
       {bookings.length > 0 ? (
         bookings.map((booking) => (
           <div
             key={booking.id}
-            className="flex flex-col bg-slate-50 p-4 border-slate-300 border-2 rounded-lg relative mb-4"
+            className="flex flex-col bg-white p-5 border border-slate-200 rounded-2xl relative mb-4 shadow-sm"
           >
-            <h2 className="text-lg lg:text-2xl">
+            <h2 className="text-lg lg:text-2xl font-semibold text-slate-900">
               {`${extractLocation(booking.pickup)} to ${extractLocation(
                 booking.dropoff
               )}`}
             </h2>
-            <p className="text-sm lg:text-md ">{extractDate(booking.time)}</p>
-            <p className="text-sm lg:text-md ">{`$ ${booking.price}`}</p>
-            <p className="text-sm lg:text-md ">{` ${
+            <p className="text-sm lg:text-md text-slate-500">
+              {extractDate(booking.time)}
+            </p>
+            <p className="text-sm lg:text-md text-slate-500">{`$ ${booking.price}`}</p>
+            <p className="text-sm lg:text-md text-slate-500">{` ${
               booking.chauffeur
                 ? "with " + booking.chauffeur
                 : "chauffeur not yet assigned"
             }`}</p>
 
             {/* Status text */}
-            <p className="absolute top-0 right-0 mr-4 mt-4 text-gray-500 text-xs md:text-sm">
-              {booking.status}{" "}
-              <i
-                className="fa-solid fa-circle-dot fa-fade"
-                style={
-                  booking.status === "requested"
-                    ? { color: "#FFD43B" }
-                    : { color: "black" }
-                }
-              ></i>
+            <p className="absolute top-0 right-0 mr-4 mt-4 text-xs md:text-sm text-slate-500 flex items-center gap-1">
+              {booking.status}
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{
+                  backgroundColor:
+                    booking.status === "requested" ? "#fbbf24" : "#9ca3af",
+                }}
+              />
             </p>
-            <p className="text-gray-500 text-xs mt-4">ID: {booking.id}</p>
+            <p className="text-slate-400 text-xs mt-4">ID: {booking.id}</p>
 
             {/* Order ID text */}
             <button
-              className="absolute bottom-0 right-0 mr-4 mb-4 text-red-800 text-xs"
+              className="absolute bottom-0 right-0 mr-4 mb-4 text-xs font-medium text-red-700 hover:text-red-800"
               onClick={() => cancelBooking(booking.id)}
             >
               Cancel Request
@@ -128,12 +131,12 @@ function RequestedBooking() {
           </div>
         ))
       ) : (
-        <div className="flex flex-col bg-slate-50 p-4 border-slate-300 border-2 rounded-lg">
-          <h2 className="text-2xl">
-            No requested trips {"    "}
+        <div className="flex flex-col bg-white p-5 border border-slate-200 rounded-2xl shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">
+            No requested trips
             {showLoading && (
               <div
-                className="text-slate-300 inline-block h-4 w-4 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                className="ml-2 text-slate-300 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
                 role="status"
               >
                 <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">

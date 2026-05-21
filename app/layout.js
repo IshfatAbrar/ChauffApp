@@ -1,4 +1,5 @@
 import { Poppins } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "./../components/Navbar";
 import Footer from "./../components/Footer";
@@ -31,6 +32,17 @@ export default function RootLayout({ children }) {
           {children}
           <Footer />
         </AuthProvider>
+        <Script
+          id="imgn-voice-config"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: "window.IMGNI_CONFIG = { projectId: 7 };",
+          }}
+        />
+        <Script
+          src="https://imgnilabs.com/widget.js"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   );

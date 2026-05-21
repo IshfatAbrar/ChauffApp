@@ -35,13 +35,12 @@ function DateSelecter() {
 
   return (
     <div>
-      <div className="flex items-center">
-        <h1>Pickup Time</h1>
-        <div
-          className="info-icon pl-2"
-          title="You can only book six hours ahead"
-        >
-          <i className="fa-solid fa-circle-info text-slate-400"></i>
+      <div className="flex items-center gap-2 mb-1">
+        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+          Pickup Time
+        </label>
+        <div title="You can only book six hours ahead">
+          <i className="fa-solid fa-circle-info text-slate-300 text-[10px]"></i>
         </div>
       </div>
       <div className="customDatePickerWidth flex w-[100%] px-0">

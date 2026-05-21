@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  typescript: true,
-  apiVersion: "2024-06-20",
-});
+import { getStripeInstance } from "../../../lib/utils/stripe";
 
 export async function POST(request: any) {
   const data = await request.json();
   const email = data.email;
+  const region = data.region || "US"; // Customer's region
 
   try {
+    // Use customer's region to get correct Stripe instance
+    const stripe = getStripeInstance(region);
+    
+    console.log(`🔧 Creating setup intent for region: ${region}`);
+
     let customer;
 
     // Check if a customer with the given email already exists

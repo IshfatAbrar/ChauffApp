@@ -7,10 +7,14 @@ const StepProgress = ({ timeline, stopoverLength }) => {
   useEffect(() => {
     // Base steps
     const baseSteps = [
-      { title: "Order Accepted", content: "Order has been accepted" },
+      { title: "Booking Accepted", content: "Booking has been accepted" },
       {
-        title: "Reached Start Point",
-        content: "You have reached the starting point",
+        title: "Arrived at Start Location",
+        content: "Your chauffeur has arrived at the pickup location",
+      },
+      {
+        title: "Trip Started",
+        content: "Your trip has started",
       },
     ];
 
@@ -34,7 +38,8 @@ const StepProgress = ({ timeline, stopoverLength }) => {
 
     // Determine current step
     let current = 1; // Step 1: Order Accepted
-    if (timeline?.start) current = 2; // Step 2: Reached Start Point
+    if (timeline?.arrive) current = 2; // Step 2: Arrived at Start Location
+    if (timeline?.start) current = 3; // Step 3: Trip Started
     if (timeline?.waypoints?.length > 0) {
       const completedWaypoints = timeline.waypoints.filter(
         (waypoint) => waypoint.arrival
@@ -74,14 +79,16 @@ const StepProgress = ({ timeline, stopoverLength }) => {
             <p>{step.content}</p>
             {timeline && (
               <p className="text-sm text-gray-500">
-                {index === 0 && timeline.accepted
-                  ? `Time: ${timeline.accepted}`
-                  : index === 1 && timeline.start
+                {index === 0
+                  ? ""
+                  : index === 1 && timeline.arrive
+                  ? `Time: ${timeline.arrive}`
+                  : index === 2 && timeline.start
                   ? `Time: ${timeline.start}`
-                  : index > 1 &&
+                  : index > 2 &&
                     index < steps.length - 1 &&
-                    timeline.waypoints[index - 2]?.arrival
-                  ? `Time: ${timeline.waypoints[index - 2]?.arrival}`
+                    timeline.waypoints[index - 3]?.arrival
+                  ? `Time: ${timeline.waypoints[index - 3]?.arrival}`
                   : index === steps.length - 1 && timeline.stop
                   ? `Time: ${timeline.stop}`
                   : ""}

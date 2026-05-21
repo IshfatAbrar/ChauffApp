@@ -2,6 +2,7 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay, Pagination, EffectFade } from "swiper/modules";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 const content = [
   {
@@ -23,7 +24,13 @@ const content = [
 
 export default function Rewind() {
   return (
-    <section className="pt-[2rem] bg-slate-100 w-full px-4 lg:px-0 border-y-2 border-slate-300">
+    <motion.section
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      className="pt-[2rem] bg-[#f8f8f8] w-full px-4 lg:px-0"
+    >
       <div className="flex flex-col items-center justify-center">
         <Swiper
           modules={[Navigation, Autoplay, Pagination, EffectFade]}
@@ -46,22 +53,29 @@ export default function Rewind() {
           {content.map((p, index) => {
             return (
               <SwiperSlide
-                className="px-[15%] pb-[4rem] flex items-center justify-center bg-slate-100"
+                className="px-[15%] pb-[4rem] flex items-center justify-center bg-[#f8f8f8]"
                 key={index}
               >
                 <div className="px-4 lg:px-0 flex flex-col lg:flex-row gap-6 lg:gap-24 justify-center items-center max-w-[100%]">
                   <Image
                     src={p.src}
-                    className="object-cover rounded-xl"
+                    className="object-cover rounded-2xl shadow-sm"
                     height="600"
                     width="600"
                   />
 
                   <div className="w-full lg:w-1/2">
-                    <h1 className="font-bold mb-2 text-4xl min-w-[200px]">
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-3">
+                      Our services
+                    </p>
+                    <h1
+                      className="font-bold mb-3 text-4xl min-w-[200px]
+                                   bg-gradient-to-b from-slate-900 to-slate-500
+                                   bg-clip-text text-transparent"
+                    >
                       {p.header}
                     </h1>
-                    <p className="min-w-[300px]">{p.info}</p>
+                    <p className="min-w-[300px] text-slate-500">{p.info}</p>
                   </div>
                 </div>
               </SwiperSlide>
@@ -70,17 +84,14 @@ export default function Rewind() {
           {/* Custom navigation buttons */}
           <div
             className="swiper-button-prev"
-            style={{ color: "#e2e8f0", fontSize: "20px" }}
+            style={{ color: "#cbd5e1", fontSize: "20px" }}
           ></div>
           <div
             className="swiper-button-next"
-            style={{
-              color: "#e2e8f0",
-              fontSize: "20px",
-            }}
+            style={{ color: "#cbd5e1", fontSize: "20px" }}
           ></div>
         </Swiper>
       </div>
-    </section>
+    </motion.section>
   );
 }

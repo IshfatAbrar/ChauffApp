@@ -9,6 +9,7 @@ import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 function Autocomplete({ type, index, handleTrashClick }) {
   const [value, setValue] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
+  const [isLocating, setIsLocating] = useState(false);
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
@@ -26,7 +27,7 @@ function Autocomplete({ type, index, handleTrashClick }) {
   const getLatAndLng = (place, type) => {
     const placeId = place.value.place_id;
     const service = new google.maps.places.PlacesService(
-      document.createElement("div")
+      document.createElement("div"),
     );
     service.getDetails({ placeId }, (place, status) => {
       if (status === "OK" && place.geometry && place.geometry.location) {
@@ -77,16 +78,99 @@ function Autocomplete({ type, index, handleTrashClick }) {
     }
   };
 
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Use Geocoding service to get address from coordinates
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode(
+          { location: { lat: latitude, lng: longitude } },
+          (results, status) => {
+            if (status === "OK" && results[0]) {
+              const geocodeResult = results[0];
+
+              // Use Place Details API to get full place information
+              const placeId = geocodeResult.place_id;
+              const service = new google.maps.places.PlacesService(
+                document.createElement("div"),
+              );
+
+              service.getDetails({ placeId }, (place, placeStatus) => {
+                setIsLocating(false);
+
+                if (
+                  placeStatus === "OK" &&
+                  place.geometry &&
+                  place.geometry.location
+                ) {
+                  // Set source with location data
+                  setSource({
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                    name: place.formatted_address,
+                    label: place.name || place.formatted_address,
+                  });
+
+                  // Update the autocomplete input value to match GooglePlacesAutocomplete format
+                  setValue({
+                    label: place.formatted_address,
+                    value: {
+                      place_id: place.place_id,
+                      description: place.formatted_address,
+                    },
+                  });
+                } else {
+                  // Fallback: use geocoding result directly
+                  setSource({
+                    lat: latitude,
+                    lng: longitude,
+                    name: geocodeResult.formatted_address,
+                    label: geocodeResult.formatted_address,
+                  });
+
+                  setValue({
+                    label: geocodeResult.formatted_address,
+                    value: {
+                      place_id: geocodeResult.place_id,
+                      description: geocodeResult.formatted_address,
+                    },
+                  });
+                  setIsLocating(false);
+                }
+              });
+            } else {
+              setIsLocating(false);
+              alert("Unable to get address from your location");
+            }
+          },
+        );
+      },
+      (error) => {
+        setIsLocating(false);
+        alert("Error getting your location: " + error.message);
+      },
+    );
+  };
+
   return (
     <div className="flex flex-col">
       {type == "source" ? (
-        <label>Where From?</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Where From?</label>
       ) : type === "stop" ? (
-        <label>Need to Stop?</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Stopover</label>
       ) : (
-        <label>Where To?</label>
+        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Where To?</label>
       )}
-      <div className="flex flex-row items-center border-2 border-slate-300 pr-2 rounded-md">
+      <div className="flex flex-row items-center border border-slate-200 bg-white pr-2 rounded-xl shadow-sm">
         <GooglePlacesAutocomplete
           selectProps={{
             value,
@@ -124,7 +208,20 @@ function Autocomplete({ type, index, handleTrashClick }) {
             },
           }}
         />
-        {type == "stop" ? (
+        {type == "source" ? (
+          <button
+            onClick={handleLocateMe}
+            disabled={isLocating}
+            className="px-3 py-2 text-slate-600 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Use my current location"
+          >
+            {isLocating ? (
+              <i className="fa-solid fa-spinner fa-spin"></i>
+            ) : (
+              <i className="fa-solid fa-location-crosshairs"></i>
+            )}
+          </button>
+        ) : type == "stop" ? (
           <button onClick={() => handleTrashClick(index)}>
             <i className="fa-solid fa-trash text-slate-300"></i>
           </button>

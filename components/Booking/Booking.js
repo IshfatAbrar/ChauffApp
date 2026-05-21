@@ -10,7 +10,13 @@ import { TimeContext } from "../../context/TimeContext";
 import { DistanceContext } from "../../context/DistanceContext";
 import { TollContext } from "../../context/TollContext";
 
-function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
+function Booking({
+  duration,
+  setIsPaymentModalOpen,
+  paymentMethod,
+  customerRegion,
+  currency,
+}) {
   const { source, setSource } = useContext(SourceContext);
   const { destination, setDestination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
@@ -87,16 +93,21 @@ function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
   };
 
   return (
-    <div className="flex flex-col p-5 md:pt-12">
-      <div className="flex flex-col rounded-md p-4 w-full">
-        <h2 className="text-[20px] font-bold">Booking</h2>
+    <div className="flex flex-col p-5 md:pt-10">
+      <div className="flex flex-col p-4 w-full">
+        <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-1">
+          New booking
+        </p>
+        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+          Where are you headed?
+        </h2>
         {error && (
-          <p className=" bg-red-100 text-red-800 mt-2 text-xs rounded-md p-2">
-            <i className="fa-solid fa-triangle-exclamation"></i>
-            {"  "}Please enter all the fields
+          <p className="bg-red-50 text-red-700 border border-red-200 mt-2 mb-2 text-xs rounded-xl p-3">
+            <i className="fa-solid fa-triangle-exclamation mr-1"></i>
+            Please fill in all fields before searching.
           </p>
         )}
-        <div className="flex flex-col gap-2 mt-4 ">
+        <div className="flex flex-col gap-3">
           <Autocomplete type="source" />
           {stopover.map((stop, index) => (
             <Autocomplete
@@ -109,10 +120,10 @@ function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
           <Autocomplete type="dropoff" />
           <button
             onClick={handleAddStopover}
-            className={`p-2 w-full rounded-lg ${
+            className={`py-2 w-full rounded-full text-sm border transition ${
               max
-                ? "text-slate-300 border-2 border-slate-100"
-                : "text-slate-600 border-2 border-slate-200 active:border-slate-300"
+                ? "text-slate-300 border-slate-100 cursor-not-allowed"
+                : "text-slate-500 border-slate-200 hover:border-slate-300 bg-white"
             }`}
           >
             + Add stopover
@@ -120,7 +131,7 @@ function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
           <DateSelecter />
 
           <button
-            className="p-4 bg-black w-full mt-4 text-white rounded-lg"
+            className="py-3 bg-slate-900 w-full mt-2 text-white text-sm font-semibold rounded-full shadow-md hover:bg-slate-800 transition"
             onClick={onSearchHandler}
           >
             Search
@@ -136,6 +147,8 @@ function Booking({ duration, setIsPaymentModalOpen, paymentMethod }) {
             panDowntoBottom={panDowntoBottom}
             setIsPaymentModalOpen={setIsPaymentModalOpen}
             paymentMethod={paymentMethod}
+            customerRegion={customerRegion}
+            currency={currency}
           />
         </div>
       ) : null}

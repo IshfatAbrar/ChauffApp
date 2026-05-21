@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 import Intro from "./../components/Home/Intro";
 
@@ -27,21 +28,33 @@ const section_2_buttons = ["Tour", "Airport Transfer", "Corporate Travel"];
 export default function Home() {
   const [section, setSection] = useState("Tour");
   return (
-    <div className="flex flex-col items-center justify-center gap-12 pb-[250px]">
+    <div className="flex flex-col items-center justify-center bg-[#f8f8f8] pb-[250px]">
       <Intro />
 
+      <div className="w-full border-t border-slate-200" />
       <Rewind />
 
+      <div className="w-full border-t border-slate-200" />
       <CoverFlow />
-      <img
+
+      <div className="w-full border-t border-slate-200" />
+      <motion.img
         src="choose_chauff.jpeg"
-        className=" w-full h-[400px] object-cover"
+        className="w-full h-[400px] object-cover"
         alt="Choose Chauff Image"
-      ></img>
+        initial={{ opacity: 0, y: 32 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      />
+
+      <div className="w-full border-t border-slate-200" />
       <Safety />
 
+      <div className="w-full border-t border-slate-200" />
       <Payment />
 
+      <div className="w-full border-t border-slate-200" />
       <Driver />
     </div>
   );

@@ -1,15 +1,16 @@
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  typescript: true,
-  apiVersion: "2024-06-20",
-});
+import { getStripeInstance } from "../../../lib/utils/stripe";
 
 export async function POST(request: any) {
-  const { email } = await request.json();
+  const { email, region } = await request.json();
 
   try {
+    // Use customer's region to get correct Stripe instance
+    const customerRegion = region || "US";
+    const stripe = getStripeInstance(customerRegion);
+
+    console.log(`💳 Getting payment method for region: ${customerRegion}`);
+
     // Find customer by email
     const customers = await stripe.customers.list({
       email,

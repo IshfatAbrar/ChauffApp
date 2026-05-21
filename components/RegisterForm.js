@@ -113,7 +113,7 @@ export default function RegisterForm() {
           </span>
           <input
             onChange={(e) => setPhone(e.target.value)}
-            type="phone"
+            type="tel"
             placeholder="Phone"
             className="block w-full mt-1 py-2 px-3 rounded-md border-slate-300 border-[2px] focus:outline-none focus:border-slate-400"
           />

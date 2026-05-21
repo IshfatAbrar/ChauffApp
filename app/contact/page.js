@@ -1,7 +1,17 @@
 "use client";
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
-function Page() {
+const fadeUp = {
+  hidden: { opacity: 0, y: 28 },
+  visible: (delay = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] },
+  }),
+};
+
+function ContactPage() {
   // State variables to store form data
   const [formData, setFormData] = useState({
     name: "",
@@ -35,25 +45,53 @@ function Page() {
   };
 
   return (
-    <div
-      className="flex flex-col justify-end h-screen bg-cover bg-center items-center pt-32 bg-slate-300"
-      style={{ backgroundImage: "url('support.jpeg')" }}
-    >
-      <div className="flex flex-col items-center px-4 mb-12">
-        <h1 className="text-4xl lg:text-6xl font-semibold text-center text-white pb-[1rem]">
-          Welcome to Chauff Support
-        </h1>
-        <p className="text-sm lg:text-lg text-center text-white lg:w-1/2">
-          We’re here to help. Looking for customer service contact information?
-          Explore support resources for the relevant products below to find the
-          best way to reach out about your issue.
-        </p>
-      </div>
+    <main className="min-h-screen bg-[#f8f8f8] text-slate-900 pt-36 lg:pt-40 pb-24">
+      {/* Hero */}
+      <section className="max-w-3xl mx-auto px-4 pb-10 text-center">
+        <motion.div
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs text-slate-500 shadow-sm mb-6"
+        >
+          Support
+          <span className="text-slate-300">—</span>
+          we&apos;re here to help
+        </motion.div>
+
+        <motion.h1
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0.1}
+          className="text-4xl md:text-5xl lg:text-[3.2rem] font-bold tracking-tight leading-[1.1] mb-4
+                     bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500
+                     bg-clip-text text-transparent"
+        >
+          Contact Chauff Support
+        </motion.h1>
+
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0.2}
+          className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto"
+        >
+          Tell us what you need help with and our team will follow up. For trip
+          issues, please include your booking details so we can respond faster.
+        </motion.p>
+      </section>
 
       {/* Contact form */}
-      <div className=" flex flex-col items-center lg:w-full  w-full p-4 bg-white">
-        <form
-          className="w-full lg:w-1/2 text-sm p-6 rounded-lg"
+      <section className="max-w-3xl mx-auto px-4">
+        <motion.form
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          custom={0.3}
+          className="w-full text-sm p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm"
           onSubmit={handleSubmit}
         >
           <label className="font-semibold">Name</label>
@@ -63,7 +101,7 @@ function Page() {
             placeholder="Your Name"
             value={formData.name}
             onChange={handleInputChange}
-            className="block w-full px-2 py-2 mb-4 text-gray-700 border rounded-md focus:outline-none focus:border-black"
+            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
             required
           />
           <label className="font-semibold">Email Address</label>
@@ -73,7 +111,7 @@ function Page() {
             placeholder="Your Email"
             value={formData.email}
             onChange={handleInputChange}
-            className="block w-full px-2 py-2 mb-4 text-gray-700 border rounded-md focus:outline-none focus:border-black"
+            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
             required
           />
           <label className="font-semibold">Subject</label>
@@ -83,7 +121,7 @@ function Page() {
             placeholder="Subject"
             value={formData.subject}
             onChange={handleInputChange}
-            className="block w-full px-2 py-2 mb-4 text-gray-700 border rounded-md focus:outline-none focus:border-black"
+            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
             required
           />
           <label className="font-semibold">Message</label>
@@ -93,22 +131,22 @@ function Page() {
             value={formData.message}
             onChange={handleInputChange}
             rows={4}
-            className="block w-full px-2 py-2 mb-4 text-gray-700 border rounded-md resize-none focus:outline-none focus:border-black"
+            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md resize-none focus:outline-none focus:border-slate-900"
             required
           ></textarea>
           <button
             type="submit"
-            className="w-full px-4 py-2 text-lg font-semibold text-white bg-black rounded-md hover:opacity-90 focus:outline-none "
+            className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-full hover:bg-slate-800 focus:outline-none shadow-md"
           >
             Get in touch
           </button>
           <p className="p-1 pt-2 text-xs">
             *Submit the form for any inquiry, help, or issues.
           </p>
-        </form>
-      </div>
-    </div>
+        </motion.form>
+      </section>
+    </main>
   );
 }
 
-export default Page;
+export default ContactPage;

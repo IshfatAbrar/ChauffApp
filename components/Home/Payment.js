@@ -1,15 +1,22 @@
 import React from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 function Payment() {
   return (
-    <div className="flex flex-col items-center justify-center gap-6 bg-slate-100 w-full py-12 border-slate-300 border-y-2">
-      <h2 className=" text-slate-200 hover:text-slate-300 duration-300">
+    <motion.div
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col items-center justify-center gap-6 bg-[#f8f8f8] w-full py-16"
+    >
+      <h2 className="text-slate-300 hover:text-slate-400 duration-300">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="w-24 h-24"
+          className="w-16 h-16"
         >
           <path
             fillRule="evenodd"
@@ -18,28 +25,36 @@ function Payment() {
           />
         </svg>
       </h2>
-      <div className="px-8 lg:px-0">
-        <h2 className="text-4xl font-bold mb-4 max-w-[1000px] text-center">
+      <div className="px-8 lg:px-0 text-center">
+        <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-3">
+          Payments
+        </p>
+        <h2
+          className="text-4xl font-bold mb-4 max-w-[700px] mx-auto
+                       bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500
+                       bg-clip-text text-transparent leading-[1.15]"
+        >
           Secure and seamless cashless payments.
         </h2>
         <div>
-          <p className="text-md max-w-[600px]">
+          <p className="text-sm text-slate-500 max-w-[520px] mx-auto leading-relaxed">
             Experience peace of mind with our secure payment method for your
             chauffeur service needs. At Chauff, we prioritize the security of
             your transactions, implementing industry-leading encryption
             protocols to safeguard your sensitive information.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 flex justify-center">
             <Link
               href="/about#payment"
-              className="text-md text-slate-600 font-semibold hover:underline duration-300"
+              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 px-5 py-2 text-sm font-medium hover:border-slate-300 hover:bg-slate-50 transition shadow-sm"
             >
-              More about payments <i className="fa-solid fa-arrow-right"></i>
+              More about payments{" "}
+              <i className="fa-solid fa-arrow-right ml-2"></i>
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

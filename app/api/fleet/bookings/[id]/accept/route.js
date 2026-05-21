@@ -1,0 +1,65 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import mongoose from "mongoose";
+import { authOptions } from "../../../../auth/[...nextauth]/route";
+import { connectMongoDB } from "../../../../../../lib/mongodb";
+import Booking from "../../../../../../lib/models/booking.model";
+import Driver from "../../../../../../lib/models/driver.model";
+
+/** PUT /api/fleet/bookings/[id]/accept
+ *  Body: { driverID }
+ *  Assigns the driver to the booking (status: requested → accepted).
+ *  Verifies the driver belongs to this fleet before assigning. */
+export async function PUT(req, { params }) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== "fleet") {
+    return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+  }
+
+  const fleetId = session.user?.fleetId || session.user?.id;
+  const bookingId = (await params).id;
+  const { driverID } = await req.json();
+
+  if (!driverID) {
+    return NextResponse.json({ success: false, message: "driverID is required" }, { status: 400 });
+  }
+
+  await connectMongoDB();
+
+  let fleetOid, driverOid, bookingOid;
+  try {
+    fleetOid   = new mongoose.Types.ObjectId(fleetId);
+    driverOid  = new mongoose.Types.ObjectId(driverID);
+    bookingOid = new mongoose.Types.ObjectId(bookingId);
+  } catch {
+    return NextResponse.json({ success: false, message: "Invalid ID format" }, { status: 400 });
+  }
+
+  const driver = await Driver.findOne({ _id: driverOid, fleet: fleetOid }).lean();
+  if (!driver) {
+    return NextResponse.json({ success: false, message: "Driver not found in your fleet" }, { status: 403 });
+  }
+
+  const booking = await Booking.findById(bookingOid);
+  if (!booking) {
+    return NextResponse.json({ success: false, message: "Booking not found" }, { status: 404 });
+  }
+
+  if (booking.status !== "requested") {
+    return NextResponse.json(
+      { success: false, message: "Could not accept ride — booking is no longer available" },
+      { status: 409 }
+    );
+  }
+
+  booking.chauffeur = driverOid;
+  booking.statusHistory.push({ status: booking.status, timestamp: new Date(), updatedBy: "fleet" });
+  booking.status = "accepted";
+  await booking.save();
+
+  return NextResponse.json({
+    success: true,
+    message: "Accepted Successfully",
+    result: booking.toObject(),
+  });
+}
