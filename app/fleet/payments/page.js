@@ -496,7 +496,7 @@ export default function FleetPaymentsPage() {
                     <div className="flex-1">
                       <p className="font-medium text-slate-900">Percentage Per Ride</p>
                       <p className="text-xs text-slate-600 mt-1">
-                        Pay drivers a percentage of each ride's total price.
+                        Pay drivers a percentage of each ride&apos;s total price.
                       </p>
                     </div>
                   </label>
@@ -590,7 +590,7 @@ export default function FleetPaymentsPage() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    Percentage of each ride's total price that drivers will receive. The
+                    Percentage of each ride&apos;s total price that drivers will receive. The
                     remaining percentage goes to your fleet.
                   </p>
                   {driverPaymentSettings.percentagePerRide > 0 && (

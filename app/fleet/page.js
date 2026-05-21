@@ -345,7 +345,7 @@ export default function FleetOnboardingPage() {
                          bg-gradient-to-b from-slate-900 to-slate-600
                          bg-clip-text text-transparent"
           >
-            Everything you need, nothing you don't.
+            Everything you need, nothing you don&apos;t.
           </h2>
         </motion.div>
 

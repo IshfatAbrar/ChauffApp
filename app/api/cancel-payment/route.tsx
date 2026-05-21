@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import connectMongoDB from "@/lib/mongodb";
-import Booking from "@/lib/models/booking.model";
+import { connectMongoDB } from "../../../lib/mongodb";
+import Booking from "../../../lib/models/booking.model";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   typescript: true,

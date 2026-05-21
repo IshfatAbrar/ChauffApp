@@ -970,7 +970,7 @@ export default function FleetBookingsPage() {
               <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-10 text-center">
                 <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-2">No bookings</p>
                 <p className="text-sm text-slate-500 max-w-sm mx-auto">
-                  Enter your fleet coordinates and click "Load bookings" to see available rides near you.
+                  Enter your fleet coordinates and click &quot;Load bookings&quot; to see available rides near you.
                 </p>
               </div>
             ) : (

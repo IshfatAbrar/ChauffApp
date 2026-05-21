@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../../../auth/[...nextauth]/route";
+import { authOptions } from "../../../../../lib/auth";
 import { checkFleetStripeStatus } from "../../../../../lib/controllers/fleet.stripe.controller";
 import Fleet from "../../../../../lib/models/fleet.model";
 import { connectMongoDB } from "../../../../../lib/mongodb";

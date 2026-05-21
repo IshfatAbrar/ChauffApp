@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import mongoose from "mongoose";
-import { authOptions } from "../../../auth/[...nextauth]/route";
+import { authOptions } from "../../../../../lib/auth";
 import { connectMongoDB } from "../../../../../lib/mongodb";
 import Fleet from "../../../../../lib/models/fleet.model";
 
