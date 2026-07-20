@@ -42,4 +42,8 @@ export const bookingService = {
   /** Merge timeline fields. Pass timeline: {} to reset. */
   updateTimeline: (bookingID, timeline) =>
     apiFetch(`/${bookingID}/timeline`, "PUT", { timeline }),
+
+  /** Decline an exclusive window — booking is immediately passed to the next fleet. */
+  decline: (bookingID) =>
+    apiFetch(`/${bookingID}/decline`, "POST"),
 };

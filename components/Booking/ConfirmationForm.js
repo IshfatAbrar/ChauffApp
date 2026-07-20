@@ -81,6 +81,28 @@ function ConfirmationForm({
     setIsSubmitting(true);
 
     try {
+      // Re-fetch payment method for the detected region to avoid stale cross-region IDs
+      const pmRes = await fetch("/api/get-payment-method", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          region: customerRegion || "US",
+        }),
+      });
+      const pmData = await pmRes.json();
+      const activePaymentMethod = pmData.paymentMethod;
+
+      if (!activePaymentMethod?.id || !activePaymentMethod?.customer) {
+        alert(
+          "No payment method found for your region. Please add a card and try again.",
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      const activeCustomerId = activePaymentMethod.customer;
+
       // Step 1: Create booking first (server assigns chauffeur/fleet)
       const bookingDetails = {
         detailedLocation: address,
@@ -102,8 +124,8 @@ function ConfirmationForm({
         status: "requested",
         customerRegion: customerRegion || "US", // Customer's region
         currency: currency || "USD", // Customer's currency
-        stripeCustomerId: stripeCustomerId,
-        stripePaymentMethodId: paymentMethod?.id,
+        stripeCustomerId: activeCustomerId,
+        stripePaymentMethodId: activePaymentMethod.id,
         payment: {
           status: "pending",
         },
@@ -125,8 +147,8 @@ function ConfirmationForm({
         body: JSON.stringify({
           amount: price,
           currency: currency?.toLowerCase() || "usd",
-          customerId: stripeCustomerId,
-          paymentMethodId: paymentMethod.id,
+          customerId: activeCustomerId,
+          paymentMethodId: activePaymentMethod.id,
           bookingId: newBooking._id,
           customerRegion: customerRegion || "US",
           metadata: {

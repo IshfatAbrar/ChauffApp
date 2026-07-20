@@ -39,6 +39,33 @@ export async function POST(request: Request) {
 
     console.log(`💳 Creating payment intent in region: ${region} (${bookingCurrency.toUpperCase()})`);
 
+    // Verify payment method exists on this region's Stripe account
+    try {
+      const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+      if (paymentMethod.customer !== customerId) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Payment method does not match customer for this region. Please re-add your card.",
+          },
+          { status: 400 }
+        );
+      }
+    } catch (verifyError: any) {
+      if (verifyError?.code === "resource_missing") {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "Payment method not found for this region. Please re-add your card.",
+          },
+          { status: 400 }
+        );
+      }
+      throw verifyError;
+    }
+
     const PLATFORM_FEE_PERCENTAGE = parseFloat(
       process.env.PLATFORM_FEE_PERCENTAGE || "0.10"
     );

@@ -52,6 +52,20 @@ export async function PUT(req, { params }) {
     );
   }
 
+  // Record this fleet's acceptance in the assignment audit log.
+  booking.fleetAssignmentHistory.push({
+    fleet: fleetOid,
+    assignedAt: booking.assignedFleetExpiry
+      ? new Date(booking.assignedFleetExpiry.getTime() - (booking.assignedFleet?.equals(fleetOid) ? 0 : 0))
+      : new Date(),
+    expiredAt: new Date(),
+    reason: "accepted",
+  });
+
+  // Clear exclusive window fields — no longer needed once accepted.
+  booking.assignedFleet = null;
+  booking.assignedFleetExpiry = null;
+
   booking.chauffeur = driverOid;
   booking.statusHistory.push({ status: booking.status, timestamp: new Date(), updatedBy: "fleet" });
   booking.status = "accepted";

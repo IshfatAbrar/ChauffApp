@@ -6,6 +6,27 @@ import { useRouter } from "next/navigation";
 import FleetSubpageHero from "../../../components/Fleet/FleetSubpageHero";
 import { bookingService } from "../../../services/bookingService";
 
+/** Returns a live mm:ss countdown string until `expiresAt`, or null when expired. */
+function useCountdown(expiresAt) {
+  const [remaining, setRemaining] = useState(null);
+
+  useEffect(() => {
+    if (!expiresAt) { setRemaining(null); return; }
+    const tick = () => {
+      const diff = new Date(expiresAt) - Date.now();
+      if (diff <= 0) { setRemaining(null); return; }
+      const m = Math.floor(diff / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setRemaining(`${m}:${s.toString().padStart(2, "0")}`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [expiresAt]);
+
+  return remaining;
+}
+
 /* ─── helpers ──────────────────────────────────────────────── */
 
 const STATUS_MAP = {
@@ -258,58 +279,93 @@ function TimelineModal({ booking, timeline, onUpdate, onClose, updating }) {
 
 /* ─── Available Booking Card ────────────────────────────────── */
 
-function AvailableCard({ booking, onAssign }) {
-  const pickup  = booking.pickupLocation?.label  || booking.pickupLocation?.name  || "Pickup";
-  const dropoff = booking.dropoffLocation?.label || booking.dropoffLocation?.name || "Dropoff";
+function AvailableCard({ booking, onAssign, onDecline, declining }) {
+  const pickup    = booking.pickupLocation?.label  || booking.pickupLocation?.name  || "Pickup";
+  const dropoff   = booking.dropoffLocation?.label || booking.dropoffLocation?.name || "Dropoff";
   const stopCount = booking.stopoverLocation?.length || 0;
-  const dist = fmtDist(booking.distanceFromUser);
+  const dist      = fmtDist(booking.distanceFromUser);
+  const countdown = useCountdown(booking.isExclusive ? booking.windowExpiresAt : null);
+
+  // Treat the window as still active as long as countdown hasn't hit zero.
+  const isExclusive = booking.isExclusive && countdown !== null;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all p-5">
-      {/* top row */}
-      <div className="flex items-start justify-between gap-2 mb-3">
-        <div className="flex flex-wrap gap-1.5">
-          {booking.selectedCar && (
-            <span className="text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500">
-              {booking.selectedCar}
+    <div className={`bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden
+      ${isExclusive ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200 hover:border-slate-300"}`}>
+
+      {/* Priority banner */}
+      {isExclusive && (
+        <div className="flex items-center justify-between gap-2 px-4 py-2 bg-amber-50 border-b border-amber-200">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span className="text-[11px] font-semibold text-amber-800 uppercase tracking-wide">
+              Priority Access
             </span>
-          )}
-          {statusBadge(booking.status || "requested")}
+          </div>
+          <span className="text-[11px] font-mono font-semibold text-amber-700 tabular-nums">
+            {countdown} left
+          </span>
         </div>
-        {dist && (
-          <span className="text-[11px] text-slate-400 shrink-0">{dist}</span>
-        )}
-      </div>
-
-      {/* route */}
-      <div className="mb-3">
-        <p className="text-sm font-semibold text-slate-900 leading-snug">{pickup}</p>
-        <p className="text-xs text-slate-400 my-0.5">↓</p>
-        <p className="text-sm font-semibold text-slate-900 leading-snug">{dropoff}</p>
-        {stopCount > 0 && (
-          <p className="text-[11px] text-slate-400 mt-1">{stopCount} stopover{stopCount !== 1 ? "s" : ""}</p>
-        )}
-      </div>
-
-      {/* meta */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-slate-500 mb-4">
-        <span>{fmt(booking.time)}</span>
-        {booking.price != null && (
-          <span className="font-semibold text-slate-800">${booking.price}</span>
-        )}
-        {booking.phoneNumber && <span>{booking.phoneNumber}</span>}
-      </div>
-
-      {booking.notes && (
-        <p className="text-[12px] text-slate-500 italic mb-4 line-clamp-2">&ldquo;{booking.notes}&rdquo;</p>
       )}
 
-      <button
-        onClick={() => onAssign(booking)}
-        className="w-full py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition"
-      >
-        Assign driver →
-      </button>
+      <div className="p-5">
+        {/* top row */}
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex flex-wrap gap-1.5">
+            {booking.selectedCar && (
+              <span className="text-[10px] uppercase tracking-widest font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500">
+                {booking.selectedCar}
+              </span>
+            )}
+            {statusBadge(booking.status || "requested")}
+          </div>
+          {dist && (
+            <span className="text-[11px] text-slate-400 shrink-0">{dist}</span>
+          )}
+        </div>
+
+        {/* route */}
+        <div className="mb-3">
+          <p className="text-sm font-semibold text-slate-900 leading-snug">{pickup}</p>
+          <p className="text-xs text-slate-400 my-0.5">↓</p>
+          <p className="text-sm font-semibold text-slate-900 leading-snug">{dropoff}</p>
+          {stopCount > 0 && (
+            <p className="text-[11px] text-slate-400 mt-1">{stopCount} stopover{stopCount !== 1 ? "s" : ""}</p>
+          )}
+        </div>
+
+        {/* meta */}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-slate-500 mb-4">
+          <span>{fmt(booking.time)}</span>
+          {booking.price != null && (
+            <span className="font-semibold text-slate-800">${booking.price}</span>
+          )}
+          {booking.phoneNumber && <span>{booking.phoneNumber}</span>}
+        </div>
+
+        {booking.notes && (
+          <p className="text-[12px] text-slate-500 italic mb-4 line-clamp-2">&ldquo;{booking.notes}&rdquo;</p>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => onAssign(booking)}
+            className="flex-1 py-2 rounded-full bg-slate-900 text-white text-sm font-semibold hover:bg-slate-700 transition"
+          >
+            Assign driver →
+          </button>
+          {isExclusive && (
+            <button
+              onClick={() => onDecline(booking._id)}
+              disabled={!!declining}
+              className="px-4 py-2 rounded-full border border-red-200 bg-red-50 text-xs font-semibold text-red-700 hover:bg-red-100 transition disabled:opacity-50 shrink-0"
+            >
+              {declining === booking._id ? "Declining…" : "Decline"}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -603,6 +659,7 @@ export default function FleetBookingsPage() {
   const [assigning,      setAssigning]      = useState(null);
   const [tlUpdating,     setTlUpdating]     = useState(false);
   const [reassignTarget, setReassignTarget] = useState(null);
+  const [declining,      setDeclining]      = useState(null);
 
   /* ── Toast ── */
   const [toast, setToast] = useState(null);
@@ -816,6 +873,24 @@ export default function FleetBookingsPage() {
     }
   };
 
+  const handleDecline = async (bookingID) => {
+    setDeclining(bookingID);
+    try {
+      const data = await bookingService.decline(bookingID);
+      if (data.success) {
+        showToast("success", data.openToAll
+          ? "Ride declined — now open to all fleets."
+          : "Ride declined and passed to the next fleet.");
+        setAvailableBookings((prev) => prev.filter((b) => b._id !== bookingID));
+      } else {
+        showToast("error", data.message || "Could not decline booking.");
+      }
+    } catch {
+      showToast("error", "Network error declining booking.");
+    }
+    setDeclining(null);
+  };
+
   const handleOpenTimeline = async (booking) => {
     try {
       const data = await bookingService.getTimeline(booking._id);
@@ -980,7 +1055,13 @@ export default function FleetBookingsPage() {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {availableBookings.map((b) => (
-                    <AvailableCard key={b._id} booking={b} onAssign={setAssignModal} />
+                    <AvailableCard
+                      key={b._id}
+                      booking={b}
+                      onAssign={setAssignModal}
+                      onDecline={handleDecline}
+                      declining={declining}
+                    />
                   ))}
                 </div>
               </>

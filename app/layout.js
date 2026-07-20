@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import Navbar from "./../components/Navbar";
 import Footer from "./../components/Footer";
+import ImgniIdentify from "./../components/ImgniIdentify";
 import { AuthProvider } from "./Providers";
 
 const inter = Poppins({ subsets: ["latin"], weight: ["400"] });
@@ -28,15 +29,16 @@ export default function RootLayout({ children }) {
 
       <body className={inter.className}>
         <AuthProvider>
+          <ImgniIdentify />
           <Navbar />
           {children}
           <Footer />
         </AuthProvider>
         <Script
-          id="imgn-voice-config"
+          id="sienna-config"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
-            __html: "window.IMGNI_CONFIG = { projectId: 7 };",
+            __html: `window.IMGNI_CONFIG = { projectId: "cmrtryjk60001s60pqf73ljyf" };`,
           }}
         />
         <Script

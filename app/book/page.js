@@ -4,7 +4,7 @@ import { SourceContext } from "../../context/SourceContext";
 import { DestinationContext } from "../../context/DestinationContext";
 import { StopoverContext } from "../../context/StopoverContext";
 import Map from "../../components/Map/Map";
-import { React, useState, useEffect } from "react";
+import { React, useState, useEffect, useRef } from "react";
 import { TimeContext } from "../../context/TimeContext";
 import { useJsApiLoader } from "@react-google-maps/api";
 import { TollContext } from "../../context/TollContext";
@@ -28,6 +28,8 @@ export default function Page() {
   const [customerRegion, setCustomerRegion] = useState("US");
   const [currency, setCurrency] = useState("USD");
   const [stripePublishableKey, setStripePublishableKey] = useState(null);
+  const [regionReady, setRegionReady] = useState(false);
+  const paymentMethodFetchId = useRef(0);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
@@ -62,26 +64,35 @@ export default function Page() {
         // Default to US if detection fails
         setCustomerRegion("US");
         setCurrency("USD");
+      } finally {
+        setRegionReady(true);
       }
     };
 
     detectRegion();
   }, []);
 
-  const fetchPaymentMethod = async () => {
-    if (!email) {
-      console.log("No email available, skipping payment method fetch");
+  const fetchPaymentMethod = async (region = customerRegion) => {
+    if (!email || !regionReady) {
       return;
     }
 
+    const fetchId = ++paymentMethodFetchId.current;
+
     try {
-      console.log("Fetching payment method for:", email);
+      console.log(`Fetching payment method for ${email} in region ${region}`);
       const res = await fetch("/api/get-payment-method", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, region: customerRegion }),
+        body: JSON.stringify({ email, region }),
       });
       const data = await res.json();
+
+      // Ignore stale responses from an older region fetch
+      if (fetchId !== paymentMethodFetchId.current) {
+        return;
+      }
+
       console.log("Payment method fetched:", data.paymentMethod);
       setPaymentMethod(data.paymentMethod);
     } catch (error) {
@@ -90,10 +101,11 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if (email && customerRegion) {
-      fetchPaymentMethod();
+    if (email && regionReady) {
+      setPaymentMethod(null);
+      fetchPaymentMethod(customerRegion);
     }
-  }, [email, customerRegion]);
+  }, [email, customerRegion, regionReady]);
 
   return (
     <DistanceContext.Provider value={{ distance, setDistance }}>
