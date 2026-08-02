@@ -87,22 +87,25 @@ const OneStopTollCalculator = ({ setDuration }) => {
 
       // Process each response to calculate total toll and distance
       responses.forEach((response) => {
-        const route = response.data.routes[0];
-        totalDistance += route.distanceMeters / 1000;
-        const duration = route.duration;
-        setDuration(duration);
+        const route = response.data.routes?.[0];
+        if (!route) return;
+
+        totalDistance += (route.distanceMeters || 0) / 1000;
+        if (route.duration) {
+          setDuration(route.duration);
+        }
+
+        const estimated =
+          route.travelAdvisory?.tollInfo?.estimatedPrice?.[0]?.units;
+        if (estimated != null && estimated !== "") {
+          const parsed = parseInt(estimated, 10);
+          if (!Number.isNaN(parsed)) {
+            totalToll += parsed;
+          }
+        }
       });
+
       setDistance(totalDistance);
-
-      responses.forEach((response) => {
-        const route = response.data.routes[0];
-
-        totalToll += parseInt(
-          route.travelAdvisory.tollInfo.estimatedPrice[0].units
-        );
-      });
-
-      // Update state with total toll and distance
       setToll(totalToll);
       setError(null);
     } catch (error) {

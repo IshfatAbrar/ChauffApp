@@ -41,7 +41,11 @@ const placesStyles = {
     border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: 12,
     overflow: "hidden",
-    zIndex: 40,
+    zIndex: 9999,
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
   }),
   menuList: (provided) => ({
     ...provided,
@@ -236,6 +240,11 @@ function Autocomplete({ type, index, handleTrashClick }) {
             placeholder: placeholder,
             isClearable: true,
             className: "w-[100%]",
+            // Portal out of overflow containers so taps work on mobile
+            menuPortalTarget:
+              typeof document !== "undefined" ? document.body : null,
+            menuPosition: "fixed",
+            menuShouldScrollIntoView: false,
             components: {
               DropdownIndicator: false,
               ClearIndicator: () => (

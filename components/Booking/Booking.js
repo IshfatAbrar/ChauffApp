@@ -26,6 +26,9 @@ function Booking({
   const { toll, setToll } = useContext(TollContext);
   const [showDistance, setShowDistance] = useState(false);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(
+    "Please fill in all fields before searching."
+  );
   const [max, setMax] = useState(false);
 
   const bottomRef = useRef(null);
@@ -45,25 +48,40 @@ function Booking({
     }, 200);
   };
 
+  const hasPlace = (place) =>
+    place &&
+    typeof place.lat === "number" &&
+    typeof place.lng === "number";
+
   const onSearchHandler = () => {
-    if (!stopover) {
-      if (!source || !destination || !time || !distance) {
-        setError(true);
-        return;
-      }
-    } else {
-      if (
-        !source ||
-        !destination ||
-        !time ||
-        !distance ||
-        stopover.some((stop) => !stop)
-      ) {
-        setError(true);
-        return;
-      }
+    const incompleteStop = Array.isArray(stopover)
+      ? stopover.some((stop) => !hasPlace(stop))
+      : false;
+
+    if (!hasPlace(source) || !hasPlace(destination)) {
+      setErrorMessage("Select a pickup and dropoff location.");
+      setError(true);
+      return;
     }
-    setShowDistance(!showDistance);
+    if (!time) {
+      setErrorMessage("Choose a pickup time at least 6 hours from now.");
+      setError(true);
+      return;
+    }
+    if (incompleteStop) {
+      setErrorMessage("Finish or remove any incomplete stopovers.");
+      setError(true);
+      return;
+    }
+    if (!distance) {
+      setErrorMessage(
+        "Still calculating your route. Wait a moment, then tap Search again."
+      );
+      setError(true);
+      return;
+    }
+
+    setShowDistance(true);
     setError(false);
     panDowntoBottom();
   };
@@ -103,7 +121,7 @@ function Booking({
         {error && (
           <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 font-body text-xs text-red-300">
             <i className="fa-solid fa-triangle-exclamation mr-1"></i>
-            Please fill in all fields before searching.
+            {errorMessage}
           </p>
         )}
         <div className="flex flex-col gap-3">

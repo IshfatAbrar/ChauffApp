@@ -49,6 +49,7 @@ function DateSelecter() {
           isClearable={true}
           dateFormat="Pp"
           popperPlacement="bottom-end"
+          withPortal={typeof window !== "undefined" && window.innerWidth < 768}
           className="custom-datepicker-input w-full"
           minDate={minSelectableTime}
           filterTime={filterFutureTime}
@@ -59,15 +60,24 @@ function DateSelecter() {
   );
 }
 
-const CustomInput = ({ value, onClick, placeholderText }) => (
-  <input
-    type="text"
-    value={value ? value : ""}
-    onClick={onClick}
-    readOnly
-    placeholder={placeholderText}
-    className="custom-datepicker-input"
-  />
-);
+const CustomInput = React.forwardRef(function CustomInput(
+  { value, onClick, onChange, placeholderText },
+  ref
+) {
+  return (
+    <input
+      ref={ref}
+      type="text"
+      value={value || ""}
+      onClick={onClick}
+      onFocus={onClick}
+      onChange={onChange}
+      readOnly
+      inputMode="none"
+      placeholder={placeholderText}
+      className="custom-datepicker-input"
+    />
+  );
+});
 
 export default DateSelecter;
