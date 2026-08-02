@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import Footer from "./../components/Footer";
 import ImgniIdentify from "./../components/ImgniIdentify";
+import RegisterServiceWorker from "./../components/RegisterServiceWorker";
 import { AuthProvider } from "./Providers";
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -88,6 +89,7 @@ export default function RootLayout({ children }) {
         className={`${ibmPlexMono.variable} ${instrumentSerif.variable} font-body`}
       >
         <AuthProvider>
+          <RegisterServiceWorker />
           <ImgniIdentify />
           {children}
           <Footer />
