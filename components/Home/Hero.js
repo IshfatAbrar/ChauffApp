@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import AppStoreButtons from "./AppStoreButtons";
 import WaitlistPill from "./WaitlistPill";
+import PwaHeroCtas from "./PwaHeroCtas";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -47,9 +48,9 @@ export default function Hero() {
           </motion.h1>
         </div>
 
-        {/* Bottom stack in flow — subtitle above badges so they never overlap */}
+        {/* Bottom stack — marketing vs PWA CTAs */}
         <div className="relative z-10 mt-auto flex w-full flex-col gap-4 px-4 pb-4 sm:gap-5 sm:px-7 sm:pb-6 md:pb-8">
-          <div className="flex flex-col items-center gap-2 sm:gap-3">
+          <div className="hide-in-pwa flex flex-col items-center gap-2 sm:gap-3">
             <motion.p
               className="max-w-[28ch] text-center font-mono text-[10px] uppercase tracking-[0.18em] text-frost sm:max-w-none md:text-[11px]"
               initial={{ opacity: 0 }}
@@ -92,10 +93,19 @@ export default function Hero() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4, ease }}
-            className="flex w-full flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
+            className="hide-in-pwa flex w-full flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-6"
           >
             <AppStoreButtons variant="hero" />
             <WaitlistPill className="lg:ml-auto lg:max-w-[380px]" />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4, ease }}
+            className="show-in-pwa w-full"
+          >
+            <PwaHeroCtas />
           </motion.div>
         </div>
       </div>

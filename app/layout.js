@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import Footer from "./../components/Footer";
 import ImgniIdentify from "./../components/ImgniIdentify";
+import PwaMode from "./../components/PwaMode";
 import RegisterServiceWorker from "./../components/RegisterServiceWorker";
 import { AuthProvider } from "./Providers";
 
@@ -67,7 +68,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <Script id="pwa-install-capture" strategy="beforeInteractive">
-          {`window.__chauffDeferredPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__chauffDeferredPrompt=e;window.dispatchEvent(new Event("chauff-beforeinstallprompt"));});window.addEventListener("appinstalled",function(){window.__chauffDeferredPrompt=null;});`}
+          {`window.__chauffDeferredPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__chauffDeferredPrompt=e;window.dispatchEvent(new Event("chauff-beforeinstallprompt"));});window.addEventListener("appinstalled",function(){window.__chauffDeferredPrompt=null;});try{var __chauffPwa=window.matchMedia("(display-mode: standalone)").matches||window.matchMedia("(display-mode: fullscreen)").matches||window.navigator.standalone===true;if(__chauffPwa)document.documentElement.classList.add("pwa-standalone");}catch(e){}`}
         </Script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -92,6 +93,7 @@ export default function RootLayout({ children }) {
         className={`${ibmPlexMono.variable} ${instrumentSerif.variable} font-body`}
       >
         <AuthProvider>
+          <PwaMode />
           <RegisterServiceWorker />
           <ImgniIdentify />
           {children}

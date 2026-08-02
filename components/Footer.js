@@ -55,7 +55,7 @@ function Footer() {
   if (isBook) return null;
 
   return (
-    <footer className="bg-void px-6 pb-atlas-32 pt-atlas-64 md:px-10 md:pb-atlas-48 md:pt-atlas-88">
+    <footer className="hide-in-pwa bg-void px-6 pb-atlas-32 pt-atlas-64 md:px-10 md:pb-atlas-48 md:pt-atlas-88">
       <div className="mx-auto flex w-full max-w-[1400px] flex-col">
         <div className="flex flex-col justify-between gap-12 md:flex-row md:items-start md:gap-16">
           <div className="max-w-[280px] shrink-0">

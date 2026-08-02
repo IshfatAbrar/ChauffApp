@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
+import useIsPwa from "../../hooks/useIsPwa";
 
 const customerLinks = [
   { href: "/", label: "Home" },
@@ -12,6 +13,13 @@ const customerLinks = [
   { href: "/trips", label: "Trips", auth: true },
   { href: "/about", label: "About" },
   { href: "/partner", label: "Partners" },
+];
+
+const pwaCustomerLinks = [
+  { href: "/", label: "Home" },
+  { href: "/book", label: "Book" },
+  { href: "/trips", label: "Trips" },
+  { href: "/account", label: "Account" },
 ];
 
 const fleetLinks = [
@@ -34,6 +42,7 @@ function getActiveHref(pathname, links) {
 
 export default function HomeNavbar() {
   const { data: session, status } = useSession();
+  const isPwa = useIsPwa();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [hoveredHref, setHoveredHref] = useState(null);
@@ -53,7 +62,9 @@ export default function HomeNavbar() {
 
   const links = isFleet
     ? fleetLinks
-    : customerLinks.filter((l) => !l.auth || session);
+    : isPwa
+      ? pwaCustomerLinks
+      : customerLinks.filter((l) => !l.auth || session);
   const activeHref = getActiveHref(pathname, links);
   const indicatorHref = hoveredHref ?? activeHref;
   const ctaHref = isFleet
@@ -129,12 +140,14 @@ export default function HomeNavbar() {
             <>
               {session ? (
                 <>
-                  <Link
-                    href={accountHref}
-                    className="hidden font-body text-[14px] text-frost transition-colors hover:text-paper sm:inline"
-                  >
-                    {accountLabel}
-                  </Link>
+                  {!isPwa && (
+                    <Link
+                      href={accountHref}
+                      className="hidden font-body text-[14px] text-frost transition-colors hover:text-paper sm:inline"
+                    >
+                      {accountLabel}
+                    </Link>
+                  )}
                   <button
                     type="button"
                     onClick={() => signOut({ callbackUrl: "/" })}
@@ -144,19 +157,24 @@ export default function HomeNavbar() {
                   </button>
                 </>
               ) : (
+                !isPwa && (
+                  <Link
+                    href="/signin"
+                    className="hidden font-body text-[14px] text-frost transition-colors hover:text-paper sm:inline"
+                  >
+                    Sign in
+                  </Link>
+                )
+              )}
+              {/* PWA: signed-out CTAs live on the hero; signed-in keeps Book */}
+              {(!isPwa || session) && (
                 <Link
-                  href="/signin"
-                  className="hidden font-body text-[14px] text-frost transition-colors hover:text-paper sm:inline"
+                  href={ctaHref}
+                  className="inline-flex items-center justify-center rounded-full bg-paper px-4 py-2 font-body text-[13px] text-black transition-opacity hover:opacity-85"
                 >
-                  Sign in
+                  {ctaLabel}
                 </Link>
               )}
-              <Link
-                href={ctaHref}
-                className="inline-flex items-center justify-center rounded-full bg-paper px-4 py-2 font-body text-[13px] text-black transition-opacity hover:opacity-85"
-              >
-                {ctaLabel}
-              </Link>
             </>
           )}
 
@@ -208,23 +226,38 @@ export default function HomeNavbar() {
             );
           })}
           {!session && (
-            <Link
-              href="/signin"
-              onClick={() => setMenuOpen(false)}
-              className="px-1 py-2.5 font-body text-[15px] text-frost sm:hidden"
-            >
-              Sign in
-            </Link>
+            <>
+              <Link
+                href="/signin"
+                onClick={() => setMenuOpen(false)}
+                className={`px-1 py-2.5 font-body text-[15px] text-frost ${
+                  isPwa ? "" : "sm:hidden"
+                }`}
+              >
+                Sign in
+              </Link>
+              {isPwa && (
+                <Link
+                  href="/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="px-1 py-2.5 font-body text-[15px] text-frost"
+                >
+                  Sign up
+                </Link>
+              )}
+            </>
           )}
           {session && (
             <>
-              <Link
-                href={accountHref}
-                onClick={() => setMenuOpen(false)}
-                className="px-1 py-2.5 font-body text-[15px] text-frost sm:hidden"
-              >
-                {accountLabel}
-              </Link>
+              {!isPwa && (
+                <Link
+                  href={accountHref}
+                  onClick={() => setMenuOpen(false)}
+                  className="px-1 py-2.5 font-body text-[15px] text-frost sm:hidden"
+                >
+                  {accountLabel}
+                </Link>
+              )}
               <button
                 type="button"
                 onClick={() => {

@@ -167,3 +167,27 @@ body {
 .fleet-console .fleet-logo {
   filter: var(--fleet-logo-filter);
 }
+
+/* PWA / installed app — hide marketing chrome, show app-only UI */
+.show-in-pwa {
+  display: none !important;
+}
+
+@media all and (display-mode: standalone),
+  all and (display-mode: fullscreen) {
+  .hide-in-pwa {
+    display: none !important;
+  }
+
+  .show-in-pwa {
+    display: flex !important;
+  }
+}
+
+html.pwa-standalone .hide-in-pwa {
+  display: none !important;
+}
+
+html.pwa-standalone .show-in-pwa {
+  display: flex !important;
+}

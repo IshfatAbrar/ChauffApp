@@ -17,12 +17,14 @@ export default function Home() {
         <HomeNavbar />
         <Hero />
       </div>
-      <Invite />
-      <StackCarousel />
-      <FeatureBlock />
-      <FeatureList />
-      <TripIntelligence />
-      <ClosingCTA />
+      <div className="hide-in-pwa">
+        <Invite />
+        <StackCarousel />
+        <FeatureBlock />
+        <FeatureList />
+        <TripIntelligence />
+        <ClosingCTA />
+      </div>
     </main>
   );
 }
