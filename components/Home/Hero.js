@@ -37,7 +37,7 @@ export default function Hero() {
         {/* Headline — centered in the panel */}
         <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6">
           <motion.h1
-            className="max-w-[14ch] text-center font-instrument text-[82px] font-normal leading-[1.08] tracking-[-0.02em] text-paper md:text-[128px] md:leading-[1.05]"
+            className="max-w-[14ch] text-center font-instrument text-[64px] font-normal leading-[1.08] tracking-[-0.02em] text-paper md:text-[128px] md:leading-[1.05]"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease }}

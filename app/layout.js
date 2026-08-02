@@ -17,10 +17,48 @@ const instrumentSerif = Instrument_Serif({
   variable: "--font-instrument-serif",
 });
 
+const APP_NAME = "Chauff";
+const APP_DESCRIPTION =
+  "Chauff is your premier chauffeur service, offering luxurious transportation for all your needs. Whether you require airport transfers, corporate travel, or special events, our professional chauffeurs are dedicated to providing a first-class experience. With a fleet of top-of-the-line vehicles and unparalleled customer service, Chauff ensures a seamless journey from start to finish. Sit back, relax, and let Chauff take you where you need to go in style and comfort.";
+
 export const metadata = {
-  title: "Chauff",
-  description:
-    "Chauff is your premier chauffeur service, offering luxurious transportation for all your needs. Whether you require airport transfers, corporate travel, or special events, our professional chauffeurs are dedicated to providing a first-class experience. With a fleet of top-of-the-line vehicles and unparalleled customer service, Chauff ensures a seamless journey from start to finish. Sit back, relax, and let Chauff take you where you need to go in style and comfort.",
+  applicationName: APP_NAME,
+  title: {
+    default: APP_NAME,
+    template: `%s | ${APP_NAME}`,
+  },
+  description: APP_DESCRIPTION,
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+};
+
+export const viewport = {
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }) {

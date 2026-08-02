@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import InstallAppButton from "./InstallAppButton";
 
 const columns = [
   {
@@ -97,10 +98,11 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-atlas-64 flex items-center justify-between border-t border-white/10 pt-atlas-24 md:mt-atlas-88">
+        <div className="mt-atlas-64 flex flex-col gap-4 border-t border-white/10 pt-atlas-24 sm:flex-row sm:items-center sm:justify-between md:mt-atlas-88">
           <p className="font-body text-[13px] text-ash md:text-[14px]">
             © {new Date().getFullYear()} Chauff Inc. All rights reserved.
           </p>
+          <InstallAppButton />
         </div>
       </div>
     </footer>
