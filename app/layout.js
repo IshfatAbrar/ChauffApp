@@ -66,6 +66,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <Script id="pwa-install-capture" strategy="beforeInteractive">
+          {`window.__chauffDeferredPrompt=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__chauffDeferredPrompt=e;window.dispatchEvent(new Event("chauff-beforeinstallprompt"));});window.addEventListener("appinstalled",function(){window.__chauffDeferredPrompt=null;});`}
+        </Script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

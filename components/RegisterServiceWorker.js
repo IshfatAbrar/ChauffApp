@@ -9,9 +9,15 @@ export default function RegisterServiceWorker() {
     }
 
     const register = () => {
-      navigator.serviceWorker.register("/sw.js").catch((err) => {
-        console.error("Service worker registration failed:", err);
-      });
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((reg) => {
+          // Encourage update so installability criteria stay fresh
+          reg.update?.();
+        })
+        .catch((err) => {
+          console.error("Service worker registration failed:", err);
+        });
     };
 
     if (document.readyState === "complete") {
