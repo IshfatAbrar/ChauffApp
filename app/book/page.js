@@ -7,6 +7,7 @@ import Map from "../../components/Map/Map";
 import { React, useState, useEffect, useRef } from "react";
 import { TimeContext } from "../../context/TimeContext";
 import { useJsApiLoader } from "@react-google-maps/api";
+import { googleMapsLoaderOptions } from "../../lib/googleMapsLoader";
 import { TollContext } from "../../context/TollContext";
 import { DistanceContext } from "../../context/DistanceContext";
 import OneStopTollCalculator from "../../components/Map/OneStopTollCalculator";
@@ -32,10 +33,7 @@ export default function Page() {
   const [regionReady, setRegionReady] = useState(false);
   const paymentMethodFetchId = useRef(0);
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
-    libraries: ["places"],
-  });
+  const { isLoaded } = useJsApiLoader(googleMapsLoaderOptions);
 
   const { data: session, status } = useSession();
   const email = session?.user?.email;

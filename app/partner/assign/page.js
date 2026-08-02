@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import FleetPageHeader from "../../../components/Fleet/FleetPageHeader";
 import AssignBookingModal from "../../../components/Fleet/AssignBookingModal";
+import { googleMapsLoaderOptions } from "../../../lib/googleMapsLoader";
 import { bookingService } from "../../../services/bookingService";
 
 const DEFAULT_CENTER = { lat: 27.9506, lng: -82.4572 };
@@ -153,9 +154,7 @@ export default function FleetAssignPage() {
   const searchWrapRef = useRef(null);
   const searchTimerRef = useRef(null);
 
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || "",
-  });
+  const { isLoaded } = useJsApiLoader(googleMapsLoaderOptions);
 
   const [drivers, setDrivers] = useState([]);
   const [center, setCenter] = useState(DEFAULT_CENTER);
