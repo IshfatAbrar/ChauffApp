@@ -1,12 +1,21 @@
-import { Poppins } from "next/font/google";
+import { IBM_Plex_Mono, Instrument_Serif } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import Navbar from "./../components/Navbar";
 import Footer from "./../components/Footer";
 import ImgniIdentify from "./../components/ImgniIdentify";
 import { AuthProvider } from "./Providers";
 
-const inter = Poppins({ subsets: ["latin"], weight: ["400"] });
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-ibm-plex-mono",
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--font-instrument-serif",
+});
 
 export const metadata = {
   title: "Chauff",
@@ -18,6 +27,16 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -27,10 +46,11 @@ export default function RootLayout({ children }) {
         />
       </head>
 
-      <body className={inter.className}>
+      <body
+        className={`${ibmPlexMono.variable} ${instrumentSerif.variable} font-body`}
+      >
         <AuthProvider>
           <ImgniIdentify />
-          <Navbar />
           {children}
           <Footer />
         </AuthProvider>

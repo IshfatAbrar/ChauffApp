@@ -8,19 +8,16 @@ function DateSelecter() {
   const { time, setTime } = useContext(TimeContext);
   const [minSelectableTime, setMinSelectableTime] = useState(null);
 
-  // Calculate minimum selectable time (6 hours from current time)
   const calculateMinSelectableTime = () => {
     const now = new Date();
     const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
     setMinSelectableTime(sixHoursFromNow);
   };
 
-  // Handle date change
   const handleDateChange = (date) => {
     setTime(date);
   };
 
-  // Filter function to allow times at least 6 hours from now
   const filterFutureTime = (time) => {
     const now = new Date();
     const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
@@ -28,19 +25,18 @@ function DateSelecter() {
     return selectedDate.getTime() >= sixHoursFromNow.getTime();
   };
 
-  // Call function to calculate minimum selectable time on component mount
   useEffect(() => {
     calculateMinSelectableTime();
   }, []);
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-1">
-        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400">
+      <div className="mb-1.5 flex items-center gap-2">
+        <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
           Pickup Time
         </label>
         <div title="You can only book six hours ahead">
-          <i className="fa-solid fa-circle-info text-slate-300 text-[10px]"></i>
+          <i className="fa-solid fa-circle-info text-[10px] text-ash"></i>
         </div>
       </div>
       <div className="customDatePickerWidth flex w-[100%] px-0">
@@ -54,8 +50,8 @@ function DateSelecter() {
           dateFormat="Pp"
           popperPlacement="bottom-end"
           className="custom-datepicker-input w-full"
-          minDate={minSelectableTime} // Set minimum selectable date and time
-          filterTime={filterFutureTime} // Filter times at least 6 hours from now
+          minDate={minSelectableTime}
+          filterTime={filterFutureTime}
           customInput={<CustomInput placeholderText=" Pickup Time" />}
         />
       </div>
@@ -63,7 +59,6 @@ function DateSelecter() {
   );
 }
 
-// Custom input component to display placeholder initially
 const CustomInput = ({ value, onClick, placeholderText }) => (
   <input
     type="text"

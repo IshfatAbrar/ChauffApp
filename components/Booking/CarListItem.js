@@ -1,24 +1,19 @@
-import Image from "next/image";
 import React, { useState } from "react";
 import PriceBreakdownModal from "./PriceBreakdownModal";
 import { formatCurrency } from "../../lib/utils/currency";
 
-// Helper function to parse duration from Google Routes API format (e.g., "3600s" or {seconds: 3600})
 const parseDurationToMinutes = (duration) => {
   if (!duration) return 0;
 
-  // If it's a string like "3600s"
   if (typeof duration === "string") {
     const seconds = parseInt(duration.replace("s", ""), 10);
     return seconds / 60;
   }
 
-  // If it's an object with seconds property
   if (typeof duration === "object" && duration.seconds) {
     return duration.seconds / 60;
   }
 
-  // If it's already a number (seconds)
   if (typeof duration === "number") {
     return duration / 60;
   }
@@ -26,12 +21,10 @@ const parseDurationToMinutes = (duration) => {
   return 0;
 };
 
-// Helper function to convert km to miles
 const kmToMiles = (km) => {
   return km * 0.621371;
 };
 
-// Calculate price: base_fare + (per_minute × estimated_minutes) + (per_mile × estimated_miles) + tolls
 const calculatePrice = (car, distanceKm, duration, toll) => {
   const baseFare = car.baseFare || 0;
   const perMinute = car.perMinute || 0;
@@ -43,7 +36,7 @@ const calculatePrice = (car, distanceKm, duration, toll) => {
 
   const price = baseFare + perMinute * minutes + perMile * miles + tollAmount;
 
-  return Math.max(0, price); // Ensure price is not negative
+  return Math.max(0, price);
 };
 
 function CarListItem({ car, distance, duration, toll, currency }) {
@@ -52,25 +45,25 @@ function CarListItem({ car, distance, duration, toll, currency }) {
 
   return (
     <>
-      <div className="py-3 px-4">
+      <div className="px-4 py-3.5">
         <div className="flex flex-row items-center justify-between gap-4">
           <div className="flex flex-col items-start">
-            <h2 className="font-semibold text-base text-slate-900 flex gap-2 items-center">
+            <h2 className="flex items-center gap-2 font-body text-base text-paper">
               {car.name}
-              <span className="text-xs font-normal text-slate-400">
+              <span className="font-mono text-[11px] font-normal text-ash">
                 {car.seat}
               </span>
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">{car.desc}</p>
+            <p className="mt-0.5 font-body text-xs text-frost">{car.desc}</p>
             {toll && toll > 0 && (
-              <p className="text-[10px] text-slate-400 mt-1">
+              <p className="mt-1 font-mono text-[10px] text-ash">
                 <i className="fa-solid fa-circle-info mr-1"></i>
                 Tolls: {formatCurrency(toll, currency)}
               </p>
             )}
           </div>
           <span
-            className="text-base font-semibold text-slate-900 cursor-pointer hover:text-slate-600 transition-colors whitespace-nowrap"
+            className="cursor-pointer whitespace-nowrap font-body text-base text-paper transition-colors hover:text-frost"
             onClick={() => setIsModalOpen(true)}
             title="Click to see price breakdown"
           >

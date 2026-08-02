@@ -6,6 +6,60 @@ import { StopoverContext } from "../../context/StopoverContext";
 import React, { useContext, useEffect, useState } from "react";
 import GooglePlacesAutocomplete from "react-google-places-autocomplete";
 
+const placesStyles = {
+  control: (provided) => ({
+    ...provided,
+    background: "transparent",
+    border: "none",
+    boxShadow: "none",
+    cursor: "text",
+    minHeight: 44,
+    ":hover": {
+      border: "none",
+    },
+  }),
+  valueContainer: (provided) => ({
+    ...provided,
+    padding: "2px 8px",
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: "#f8f8f8",
+    outline: "none",
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: "#f8f8f8",
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: "#808080",
+  }),
+  menu: (provided) => ({
+    ...provided,
+    background: "#1e1e1e",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 12,
+    overflow: "hidden",
+    zIndex: 40,
+  }),
+  menuList: (provided) => ({
+    ...provided,
+    padding: 4,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    background: state.isFocused ? "#272727" : "transparent",
+    color: "#f8f8f8",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontSize: 14,
+  }),
+  indicatorSeparator: () => ({
+    display: "none",
+  }),
+};
+
 function Autocomplete({ type, index, handleTrashClick }) {
   const [value, setValue] = useState(null);
   const [placeholder, setPlaceholder] = useState(null);
@@ -64,9 +118,9 @@ function Autocomplete({ type, index, handleTrashClick }) {
   };
 
   const handleClear = () => {
-    setValue([]); // Clear the value
+    setValue([]);
     if (type === "source") {
-      setSource([]); // Clear the source
+      setSource([]);
     } else if (type === "stop") {
       setStopover((prevStopover) => {
         const updatedStopovers = [...prevStopover];
@@ -74,7 +128,7 @@ function Autocomplete({ type, index, handleTrashClick }) {
         return updatedStopovers;
       });
     } else {
-      setDestination([]); // Clear the destination
+      setDestination([]);
     }
   };
 
@@ -90,7 +144,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
       (position) => {
         const { latitude, longitude } = position.coords;
 
-        // Use Geocoding service to get address from coordinates
         const geocoder = new google.maps.Geocoder();
         geocoder.geocode(
           { location: { lat: latitude, lng: longitude } },
@@ -98,7 +151,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
             if (status === "OK" && results[0]) {
               const geocodeResult = results[0];
 
-              // Use Place Details API to get full place information
               const placeId = geocodeResult.place_id;
               const service = new google.maps.places.PlacesService(
                 document.createElement("div"),
@@ -112,7 +164,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
                   place.geometry &&
                   place.geometry.location
                 ) {
-                  // Set source with location data
                   setSource({
                     lat: place.geometry.location.lat(),
                     lng: place.geometry.location.lng(),
@@ -120,7 +171,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
                     label: place.name || place.formatted_address,
                   });
 
-                  // Update the autocomplete input value to match GooglePlacesAutocomplete format
                   setValue({
                     label: place.formatted_address,
                     value: {
@@ -129,7 +179,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
                     },
                   });
                 } else {
-                  // Fallback: use geocoding result directly
                   setSource({
                     lat: latitude,
                     lng: longitude,
@@ -164,13 +213,19 @@ function Autocomplete({ type, index, handleTrashClick }) {
   return (
     <div className="flex flex-col">
       {type == "source" ? (
-        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Where From?</label>
+        <label className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+          Where From?
+        </label>
       ) : type === "stop" ? (
-        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Stopover</label>
+        <label className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+          Stopover
+        </label>
       ) : (
-        <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-1">Where To?</label>
+        <label className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+          Where To?
+        </label>
       )}
-      <div className="flex flex-row items-center border border-slate-200 bg-white pr-2 rounded-xl shadow-sm">
+      <div className="flex flex-row items-center rounded-xl border border-white/10 bg-graphite pr-2 transition-colors focus-within:border-white/25">
         <GooglePlacesAutocomplete
           selectProps={{
             value,
@@ -184,35 +239,24 @@ function Autocomplete({ type, index, handleTrashClick }) {
             components: {
               DropdownIndicator: false,
               ClearIndicator: () => (
-                <button className=" pr-2" onClick={handleClear}>
-                  <i class="fa-solid fa-xmark"></i>
+                <button
+                  type="button"
+                  className="pr-2 text-ash transition-colors hover:text-paper"
+                  onClick={handleClear}
+                >
+                  <i className="fa-solid fa-xmark"></i>
                 </button>
               ),
             },
-            styles: {
-              control: (provided) => ({
-                ...provided,
-                background: "white",
-                border: "none",
-                ":hover": {
-                  border: "none",
-                },
-                boxShadow: "none",
-                cursor: "text",
-              }),
-              input: (provided, state) => ({
-                ...provided,
-
-                outline: "none",
-              }),
-            },
+            styles: placesStyles,
           }}
         />
         {type == "source" ? (
           <button
+            type="button"
             onClick={handleLocateMe}
             disabled={isLocating}
-            className="px-3 py-2 text-slate-600 hover:text-black disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-frost transition-colors hover:text-paper disabled:cursor-not-allowed disabled:opacity-50"
             title="Use my current location"
           >
             {isLocating ? (
@@ -222,8 +266,12 @@ function Autocomplete({ type, index, handleTrashClick }) {
             )}
           </button>
         ) : type == "stop" ? (
-          <button onClick={() => handleTrashClick(index)}>
-            <i className="fa-solid fa-trash text-slate-300"></i>
+          <button
+            type="button"
+            onClick={() => handleTrashClick(index)}
+            className="px-2 text-ash transition-colors hover:text-paper"
+          >
+            <i className="fa-solid fa-trash"></i>
           </button>
         ) : (
           <></>

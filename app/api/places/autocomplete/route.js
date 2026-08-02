@@ -5,6 +5,9 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const input = searchParams.get("input");
     const sessionToken = searchParams.get("sessiontoken") || "";
+    const lat = searchParams.get("lat");
+    const lng = searchParams.get("lng");
+    const radius = searchParams.get("radius") || "50000";
 
     if (!input?.trim()) {
       return NextResponse.json({ predictions: [] });
@@ -19,11 +22,21 @@ export async function GET(request) {
       );
     }
 
-    const url =
+    let url =
       `https://maps.googleapis.com/maps/api/place/autocomplete/json` +
       `?input=${encodeURIComponent(input)}` +
-      `&key=${key}` +
-      (sessionToken ? `&sessiontoken=${sessionToken}` : "");
+      `&key=${key}`;
+
+    if (sessionToken) {
+      url += `&sessiontoken=${sessionToken}`;
+    }
+
+    // Bias results toward pickup / current location
+    if (lat != null && lng != null && lat !== "" && lng !== "") {
+      url +=
+        `&location=${encodeURIComponent(`${lat},${lng}`)}` +
+        `&radius=${encodeURIComponent(radius)}`;
+    }
 
     const res = await fetch(url);
     const data = await res.json();

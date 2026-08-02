@@ -1,18 +1,23 @@
 "use client";
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import HomeNavbar from "../../components/Home/HomeNavbar";
+
+const ease = [0.22, 1, 0.36, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 24 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, delay, ease },
   }),
 };
 
+const fieldClass =
+  "mt-1.5 block w-full rounded-xl border border-white/10 bg-graphite px-3.5 py-3 font-body text-[15px] text-paper placeholder-ash transition-colors focus:border-white/25 focus:outline-none";
+
 function ContactPage() {
-  // State variables to store form data
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,7 +25,6 @@ function ContactPage() {
     message: "",
   });
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -29,13 +33,9 @@ function ContactPage() {
     });
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Here, you can implement your logic to handle form submission,
-    // such as sending the form data to a backend server
     console.log(formData);
-    // Reset form after submission
     setFormData({
       name: "",
       email: "",
@@ -45,103 +45,114 @@ function ContactPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f8f8f8] text-slate-900 pt-36 lg:pt-40 pb-24">
-      {/* Hero */}
-      <section className="max-w-3xl mx-auto px-4 pb-10 text-center">
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs text-slate-500 shadow-sm mb-6"
-        >
-          Support
-          <span className="text-slate-300">—</span>
-          we&apos;re here to help
-        </motion.div>
+    <main className="min-h-screen bg-void font-display text-paper">
+      <HomeNavbar />
 
-        <motion.h1
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.1}
-          className="text-4xl md:text-5xl lg:text-[3.2rem] font-bold tracking-tight leading-[1.1] mb-4
-                     bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500
-                     bg-clip-text text-transparent"
-        >
-          Contact Chauff Support
-        </motion.h1>
+      <section className="px-6 pb-atlas-48 pt-atlas-48 md:px-10 md:pt-atlas-64">
+        <div className="mx-auto flex max-w-[44rem] flex-col items-center text-center">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+            className="mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-ash"
+          >
+            Support
+          </motion.p>
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.2}
-          className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto"
-        >
-          Tell us what you need help with and our team will follow up. For trip
-          issues, please include your booking details so we can respond faster.
-        </motion.p>
+          <motion.h1
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.08}
+            className="font-instrument text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-paper md:text-[72px] lg:text-[88px]"
+          >
+            Contact Chauff Support
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.16}
+            className="mt-atlas-24 max-w-[34rem] text-balance font-display text-[17px] leading-[1.55] text-ash md:text-[20px]"
+          >
+            Tell us what you need help with and our team will follow up. For
+            trip issues, please include your booking details so we can respond
+            faster.
+          </motion.p>
+        </div>
       </section>
 
-      {/* Contact form */}
-      <section className="max-w-3xl mx-auto px-4">
+      <section className="px-6 pb-atlas-128 md:px-10">
         <motion.form
           variants={fadeUp}
           initial="hidden"
           animate="visible"
-          custom={0.3}
-          className="w-full text-sm p-6 md:p-8 rounded-2xl bg-white border border-slate-200 shadow-sm"
+          custom={0.24}
+          className="mx-auto w-full max-w-[36rem] rounded-[24px] border border-white/10 bg-obsidian p-6 md:p-8"
           onSubmit={handleSubmit}
         >
-          <label className="font-semibold">Name</label>
+          <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+            Name
+          </label>
           <input
             type="text"
             name="name"
             placeholder="Your Name"
             value={formData.name}
             onChange={handleInputChange}
-            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
+            className={`${fieldClass} mb-5`}
             required
           />
-          <label className="font-semibold">Email Address</label>
+
+          <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+            Email Address
+          </label>
           <input
             type="email"
             name="email"
             placeholder="Your Email"
             value={formData.email}
             onChange={handleInputChange}
-            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
+            className={`${fieldClass} mb-5`}
             required
           />
-          <label className="font-semibold">Subject</label>
+
+          <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+            Subject
+          </label>
           <input
             type="text"
             name="subject"
             placeholder="Subject"
             value={formData.subject}
             onChange={handleInputChange}
-            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md focus:outline-none focus:border-slate-900"
+            className={`${fieldClass} mb-5`}
             required
           />
-          <label className="font-semibold">Message</label>
+
+          <label className="font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+            Message
+          </label>
           <textarea
             name="message"
             placeholder="Your Message"
             value={formData.message}
             onChange={handleInputChange}
-            rows={4}
-            className="block w-full px-3 py-2 mb-4 text-gray-700 border border-slate-200 rounded-md resize-none focus:outline-none focus:border-slate-900"
+            rows={5}
+            className={`${fieldClass} mb-6 resize-none`}
             required
-          ></textarea>
+          />
+
           <button
             type="submit"
-            className="w-full px-4 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-full hover:bg-slate-800 focus:outline-none shadow-md"
+            className="w-full rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity hover:opacity-85"
           >
             Get in touch
           </button>
-          <p className="p-1 pt-2 text-xs">
-            *Submit the form for any inquiry, help, or issues.
+          <p className="mt-3 text-center font-mono text-[11px] leading-[1.55] text-ash">
+            Submit the form for any inquiry, help, or issues.
           </p>
         </motion.form>
       </section>

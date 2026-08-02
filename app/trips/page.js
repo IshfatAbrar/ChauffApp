@@ -4,59 +4,60 @@ import OngoingBooking from "../../components/Trips/OngoingBooking";
 import React from "react";
 import RequestedBooking from "../../components/Trips/RequestedBooking";
 import { motion } from "framer-motion";
+import HomeNavbar from "../../components/Home/HomeNavbar";
+
+const ease = [0.22, 1, 0.36, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 24 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, delay, ease },
   }),
 };
 
 function TripsPage() {
   return (
-    <main className="min-h-screen bg-[#f8f8f8] text-slate-900 pt-36 lg:pt-40 pb-24">
-      {/* Hero */}
-      <section className="max-w-3xl mx-auto px-4 pb-10 text-center">
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs text-slate-500 shadow-sm mb-6"
-        >
-          Your journeys
-          <span className="text-slate-300">—</span>
-          past, present, upcoming
-        </motion.div>
+    <main className="min-h-screen bg-void font-display text-paper">
+      <HomeNavbar />
 
-        <motion.h1
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.1}
-          className="text-4xl md:text-5xl lg:text-[3.2rem] font-bold tracking-tight leading-[1.1] mb-4
-                     bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500
-                     bg-clip-text text-transparent"
-        >
-          My trips with Chauff
-        </motion.h1>
+      <section className="px-6 pb-atlas-48 pt-atlas-48 md:px-10 md:pt-atlas-64">
+        <div className="mx-auto flex max-w-[44rem] flex-col items-center text-center">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+            className="mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-ash"
+          >
+            Your journeys
+          </motion.p>
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.2}
-          className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto"
-        >
-          See what&apos;s on the road right now, manage upcoming rides, and
-          download receipts from previous trips — all in one clean view.
-        </motion.p>
+          <motion.h1
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.08}
+            className="font-instrument text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-paper md:text-[72px] lg:text-[88px]"
+          >
+            My trips with Chauff
+          </motion.h1>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.16}
+            className="mt-atlas-24 max-w-[34rem] text-balance font-display text-[17px] leading-[1.55] text-ash md:text-[20px]"
+          >
+            See what&apos;s on the road right now, manage upcoming rides, and
+            download receipts from previous trips — all in one clean view.
+          </motion.p>
+        </div>
       </section>
 
-      {/* Content */}
-      <section className="max-w-4xl mx-auto px-4">
+      <section className="mx-auto max-w-3xl px-6 pb-atlas-128 md:px-10">
         <OngoingBooking />
         <RequestedBooking />
         <PreviousBooking />

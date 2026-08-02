@@ -21,6 +21,7 @@ export async function POST(req) {
       country,
       website,
       estimatedFleetSize,
+      partnerType: requestedPartnerType,
       notes,
     } = await req.json();
 
@@ -39,19 +40,33 @@ export async function POST(req) {
 
     if (existingFleet) {
       return NextResponse.json(
-        { message: "A fleet with this email or phone already exists." },
+        { message: "A partner with this email or phone already exists." },
         { status: 409 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Detect fleet's region from IP address
+    // Detect partner's region from IP address
     const region = await detectRegionFromRequest(req);
     const currency = getCurrencyForRegion(region);
     const detectedCountry = getCountryForRegion(region);
+    const partnerType =
+      requestedPartnerType === "solo" || requestedPartnerType === "fleet"
+        ? requestedPartnerType
+        : estimatedFleetSize && Number(estimatedFleetSize) > 1
+          ? "fleet"
+          : "solo";
+    const size =
+      partnerType === "solo"
+        ? 1
+        : estimatedFleetSize
+          ? Number(estimatedFleetSize)
+          : 2;
 
-    console.log(`🌍 Fleet registering from region: ${region} (${currency})`);
+    console.log(
+      `🌍 Partner registering (${partnerType}) from region: ${region} (${currency})`
+    );
 
     await Fleet.create({
       contactName,
@@ -67,26 +82,30 @@ export async function POST(req) {
         postcode,
         country: country || detectedCountry,
       },
-      region, // Store detected region
-      currency, // Store corresponding currency
+      region,
+      currency,
       website,
-      estimatedFleetSize: estimatedFleetSize ? Number(estimatedFleetSize) : undefined,
+      estimatedFleetSize: size,
       notes,
+      // Allow new partners (solo or fleet) to use the platform immediately
+      status: "approved",
+      isActive: true,
+      tags: [partnerType === "solo" ? "solo" : "fleet"],
     });
 
     return NextResponse.json(
       {
         message:
-          "Fleet account created successfully. You can now manage your business and drivers with Chauff.",
+          "Partner account created successfully. Sign in to open your partner dashboard.",
         region,
         currency,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error registering fleet:", error);
+    console.error("Error registering partner:", error);
     return NextResponse.json(
-      { message: "An error occurred while registering the fleet." },
+      { message: "An error occurred while creating the partner account." },
       { status: 500 }
     );
   }

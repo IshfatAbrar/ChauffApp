@@ -12,7 +12,6 @@ function PaymentModal({
   customerRegion,
   stripePublishableKey,
 }) {
-  // Use region-specific Stripe publishable key
   const stripePromise = stripePublishableKey
     ? loadStripe(stripePublishableKey)
     : loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
@@ -60,26 +59,25 @@ function PaymentModal({
   return (
     <div>
       {isPaymentModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full relative max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-2xl border border-white/10 bg-obsidian">
             <button
-              className="absolute top-2 right-4 text-gray-600 hover:text-gray-800 z-10"
+              className="absolute right-4 top-3 z-10 text-ash transition-colors hover:text-paper"
               onClick={() => setIsPaymentModalOpen(false)}
+              aria-label="Close"
             >
               ✕
             </button>
-            <div className="overflow-y-auto py-10 px-4">
+            <div className="overflow-y-auto px-4 py-10">
               {clientSecret && (
                 <Elements stripe={stripePromise} options={options}>
                   <CheckoutForm
                     paymentMethod={paymentMethod}
                     fetchPaymentMethod={fetchPaymentMethod}
                     onSuccess={async () => {
-                      // Update parent component's payment method first
                       if (onPaymentMethodUpdated) {
                         await onPaymentMethodUpdated();
                       }
-                      // Then close modal
                       setIsPaymentModalOpen(false);
                     }}
                   />

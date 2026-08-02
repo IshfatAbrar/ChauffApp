@@ -217,23 +217,19 @@ function ConfirmationForm({
       classNames="confirmation-form"
       unmountOnExit
     >
-      <div
-        className="bg-white p-4 pb-10 overflow-y-scroll no-scrollbar border-r border-slate-200"
-        style={{ height: window.innerHeight }}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between pt-24 mb-6">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-0.5">
+      <div className="h-full overflow-y-scroll no-scrollbar border border-white/10 bg-void p-5 pb-10 md:p-6">
+        <div className="mb-6 flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
               Almost there
             </p>
-            <h2 className="text-xl font-semibold text-slate-900">
+            <h2 className="font-instrument text-[28px] font-normal leading-[1.15] tracking-[-0.02em] text-paper md:text-[32px]">
               Confirm Your Ride
             </h2>
           </div>
           <button
             onClick={handleCloseClick}
-            className="p-2 rounded-full bg-white border border-slate-200 text-slate-400 hover:text-slate-700 transition shadow-sm"
+            className="rounded-full border border-white/15 bg-obsidian p-2 text-frost transition hover:text-paper"
           >
             <i className="fa-solid fa-xmark text-sm"></i>
           </button>
@@ -241,29 +237,24 @@ function ConfirmationForm({
 
         <form
           onSubmit={createBookingHandler}
-          className="flex flex-col gap-4 text-sm"
+          className="flex flex-col gap-4 font-body text-sm"
         >
-          {/* Your Information */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+          <div className="rounded-2xl border border-white/10 bg-obsidian p-4">
+            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
               Your information
             </p>
             <div className="mb-3">
-              <label className="text-xs text-slate-500 mb-0.5 block">
-                Name
-              </label>
-              <p className="text-slate-900 font-medium">{name}</p>
+              <label className="mb-0.5 block text-xs text-ash">Name</label>
+              <p className="text-paper">{name}</p>
             </div>
             <div className="mb-3">
-              <label className="text-xs text-slate-500 mb-0.5 block">
-                Email
-              </label>
-              <p className="text-slate-900 font-medium">{email}</p>
+              <label className="mb-0.5 block text-xs text-ash">Email</label>
+              <p className="text-paper">{email}</p>
             </div>
             <div className="mb-3">
               <label
                 htmlFor="phone"
-                className="text-xs text-slate-500 mb-1 block"
+                className="mb-1 block text-xs text-ash"
               >
                 Phone Number
               </label>
@@ -272,22 +263,22 @@ function ConfirmationForm({
                 id="phone"
                 value={phone || ""}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-graphite p-2.5 text-paper placeholder-ash focus:border-white/25 focus:outline-none"
                 placeholder="Enter your phone number"
               />
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1 block">
+              <label className="mb-1 block text-xs text-ash">
                 Payment Method
               </label>
-              <p className="text-slate-900 font-medium">
+              <p className="text-paper">
                 {paymentMethod.card.brand.charAt(0).toUpperCase() +
                   paymentMethod.card.brand.slice(1)}{" "}
                 ····{paymentMethod?.card.last4}
               </p>
               <button
                 type="button"
-                className="text-[11px] text-slate-400 hover:text-slate-600 mt-1 transition"
+                className="mt-1 font-mono text-[11px] text-ash transition hover:text-frost"
                 onClick={() => setIsPaymentModalOpen(true)}
               >
                 Use another card?
@@ -295,15 +286,14 @@ function ConfirmationForm({
             </div>
           </div>
 
-          {/* Additional Instructions */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+          <div className="rounded-2xl border border-white/10 bg-obsidian p-4">
+            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
               Additional instructions
             </p>
             <div className="mb-3">
               <label
                 htmlFor="address"
-                className="text-xs text-slate-500 mb-1 block"
+                className="mb-1 block text-xs text-ash"
               >
                 Detailed Address
               </label>
@@ -311,14 +301,14 @@ function ConfirmationForm({
                 type="text"
                 id="address"
                 onChange={(e) => setAddress(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-graphite p-2.5 text-paper placeholder-ash focus:border-white/25 focus:outline-none"
                 placeholder="Apt, suite, floor, etc."
               />
             </div>
             <div>
               <label
                 htmlFor="notes"
-                className="text-xs text-slate-500 mb-1 block"
+                className="mb-1 block text-xs text-ash"
               >
                 Notes for driver
               </label>
@@ -326,34 +316,29 @@ function ConfirmationForm({
                 type="text"
                 id="notes"
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl p-2.5 text-slate-900 placeholder-slate-300 bg-[#f8f8f8] focus:outline-none focus:ring-1 focus:ring-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-graphite p-2.5 text-paper placeholder-ash focus:border-white/25 focus:outline-none"
                 placeholder="Any special instructions"
               />
             </div>
           </div>
 
-          {/* Pickup Details */}
-          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-3">
+          <div className="rounded-2xl border border-white/10 bg-obsidian p-4">
+            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
               Pickup details
             </p>
             <div className="mb-3">
-              <label className="text-xs text-slate-500 mb-0.5 block">
+              <label className="mb-0.5 block text-xs text-ash">
                 Date & Time
               </label>
-              <p className="text-slate-900 font-medium">{timeString}</p>
+              <p className="text-paper">{timeString}</p>
             </div>
             <div className="mb-3">
-              <label className="text-xs text-slate-500 mb-0.5 block">
-                Vehicle
-              </label>
-              <p className="text-slate-900 font-medium">{selectedCar}</p>
+              <label className="mb-0.5 block text-xs text-ash">Vehicle</label>
+              <p className="text-paper">{selectedCar}</p>
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-0.5 block">
-                Total
-              </label>
-              <p className="text-slate-900 font-semibold text-base">
+              <label className="mb-0.5 block text-xs text-ash">Total</label>
+              <p className="font-body text-base text-paper">
                 {formatCurrency(price, currency || "USD")}
               </p>
             </div>
@@ -362,10 +347,10 @@ function ConfirmationForm({
           <button
             type="submit"
             disabled={isSubmitting || !stripeCustomerId || !paymentMethod?.id}
-            className={`w-full py-3 rounded-full text-white text-sm font-semibold shadow-md transition ${
+            className={`w-full rounded-full py-3.5 font-body text-[15px] transition ${
               isSubmitting || !stripeCustomerId || !paymentMethod?.id
-                ? "bg-slate-300 cursor-not-allowed"
-                : "bg-slate-900 hover:bg-slate-800"
+                ? "cursor-not-allowed bg-graphite text-ash"
+                : "bg-paper text-black hover:opacity-85"
             }`}
           >
             {isSubmitting ? "Processing..." : "Confirm Ride"}

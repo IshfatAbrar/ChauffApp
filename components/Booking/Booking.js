@@ -28,7 +28,7 @@ function Booking({
   const [error, setError] = useState(false);
   const [max, setMax] = useState(false);
 
-  const bottomRef = useRef(null); // Reference for scrolling to bottom
+  const bottomRef = useRef(null);
 
   useEffect(() => {
     if (!source) {
@@ -66,7 +66,6 @@ function Booking({
     setShowDistance(!showDistance);
     setError(false);
     panDowntoBottom();
-    // Scroll to bottom after a 1-second delay
   };
 
   const handleAddStopover = () => {
@@ -93,16 +92,16 @@ function Booking({
   };
 
   return (
-    <div className="flex flex-col p-5 md:pt-10">
-      <div className="flex flex-col p-4 w-full">
-        <p className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-1">
+    <div className="flex flex-col p-5 md:p-6">
+      <div className="flex w-full flex-col">
+        <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
           New booking
         </p>
-        <h2 className="text-xl font-semibold text-slate-900 mb-4">
+        <h2 className="mb-5 font-instrument text-[32px] font-normal leading-[1.1] tracking-[-0.02em] text-paper md:text-[36px]">
           Where are you headed?
         </h2>
         {error && (
-          <p className="bg-red-50 text-red-700 border border-red-200 mt-2 mb-2 text-xs rounded-xl p-3">
+          <p className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 p-3 font-body text-xs text-red-300">
             <i className="fa-solid fa-triangle-exclamation mr-1"></i>
             Please fill in all fields before searching.
           </p>
@@ -120,10 +119,11 @@ function Booking({
           <Autocomplete type="dropoff" />
           <button
             onClick={handleAddStopover}
-            className={`py-2 w-full rounded-full text-sm border transition ${
+            disabled={max}
+            className={`w-full rounded-full border py-2.5 font-body text-sm transition ${
               max
-                ? "text-slate-300 border-slate-100 cursor-not-allowed"
-                : "text-slate-500 border-slate-200 hover:border-slate-300 bg-white"
+                ? "cursor-not-allowed border-white/5 text-ash/40"
+                : "border-white/15 text-frost hover:border-white/30 hover:text-paper"
             }`}
           >
             + Add stopover
@@ -131,7 +131,7 @@ function Booking({
           <DateSelecter />
 
           <button
-            className="py-3 bg-slate-900 w-full mt-2 text-white text-sm font-semibold rounded-full shadow-md hover:bg-slate-800 transition"
+            className="mt-2 w-full rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85"
             onClick={onSearchHandler}
           >
             Search

@@ -1,166 +1,213 @@
 "use client";
 import React from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
+import HomeNavbar from "../../components/Home/HomeNavbar";
+
+const ease = [0.22, 1, 0.36, 1];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { opacity: 0, y: 24 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] },
+    transition: { duration: 0.7, delay, ease },
   }),
 };
 
+const PROBLEMS = [
+  {
+    title: "Rideshare isn’t private travel",
+    body: "Most platforms treat every trip the same. Guests who expect a chauffeur—on time, discreet, and in the right vehicle—are left guessing who will show up.",
+  },
+  {
+    title: "Professionals get crowded out",
+    body: "Career chauffeurs and fleets compete with casual drivers on tools built for volume, not standards. Quality gets lost in the noise.",
+  },
+  {
+    title: "Coverage breaks when life happens",
+    body: "When a chauffeur can’t take a trip, clients are often left scrambling. There’s no trusted network to hand the journey to someone at the same level.",
+  },
+];
+
+const SOLUTIONS = [
+  {
+    title: "Built for chauffeurs",
+    body: "Chauff is designed around private travel—airport transfers, corporate journeys, and chauffeured tours—with professionals who treat driving as a craft.",
+  },
+  {
+    title: "One platform for clients and partners",
+    body: "Book with clarity as a guest, or run your operation as a solo chauffeur or fleet. Same standard, transparent tools, and control where it belongs.",
+  },
+  {
+    title: "A network that covers every trip",
+    body: "Partners can share clients and cover each other’s bookings, so guests still get a chauffeur at your standard—even when you can’t take the ride yourself.",
+  },
+];
+
 function AboutPage() {
   return (
-    <main className="min-h-screen bg-[#f8f8f8] text-slate-900 pt-36 lg:pt-40 pb-24">
+    <main className="min-h-screen bg-void font-display text-paper">
+      <HomeNavbar />
+
       {/* Hero */}
-      <section className="max-w-3xl mx-auto px-4 pb-10 text-center">
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs text-slate-500 shadow-sm mb-6"
-        >
-          About Chauff
-          <span className="text-slate-300">—</span>
-          who we are
-        </motion.div>
+      <section className="px-6 pb-atlas-64 pt-atlas-48 md:px-10 md:pb-atlas-88 md:pt-atlas-64">
+        <div className="mx-auto flex max-w-[44rem] flex-col items-center text-center">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0}
+            className="mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-ash"
+          >
+            About Chauff
+          </motion.p>
 
-        <motion.h1
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.1}
-          className="text-4xl md:text-5xl lg:text-[3.2rem] font-bold tracking-tight leading-[1.1] mb-4
-                     bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500
-                     bg-clip-text text-transparent"
-        >
-          We reimagine the way the world moves
-        </motion.h1>
+          <motion.h1
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.08}
+            className="font-instrument text-[48px] font-normal leading-[1.05] tracking-[-0.02em] text-paper md:text-[72px] lg:text-[88px]"
+          >
+            Private travel,
+            <br />
+            done properly.
+          </motion.h1>
 
-        <motion.p
-          variants={fadeUp}
-          initial="hidden"
-          animate="visible"
-          custom={0.2}
-          className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto"
-        >
-          Movement is what we power. It&apos;s our lifeblood. It&apos;s what
-          gets us out of bed each morning and pushes us to design better ways to
-          get you where you need to go.
-        </motion.p>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            custom={0.16}
+            className="mt-atlas-24 max-w-[34rem] text-balance font-display text-[17px] leading-[1.55] text-ash md:text-[20px]"
+          >
+            Chauff exists because professional chauffeurs and the people who book
+            them deserve a platform built for private travel—not a rideshare
+            marketplace dressed up for executives.
+          </motion.p>
+        </div>
       </section>
 
-      {/* Content */}
-      <section className="flex flex-col gap-16 max-w-3xl mx-auto px-4 pt-4">
-        <section className="max-w-[800px] mx-auto w-full">
-          <h2 className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-3">
+      {/* Mission */}
+      <section className="border-t border-white/10 px-6 py-atlas-88 md:px-10">
+        <div className="mx-auto max-w-[40rem]">
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            custom={0}
+            className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ash"
+          >
             Our mission
-          </h2>
-          <p className="text-md text-slate-500 leading-relaxed">
-            Movement is what we power. It&apos;s our lifeblood. It runs through
-            our veins. It&apos;s what gets us out of bed each morning. It pushes
-            us to constantly reimagine how we can move better. For you. For all
-            the places you want to go. For all the things you want to get. For
-            all the ways you want to earn. Across the entire world. In real
-            time. At the incredible speed of now.
-          </p>
-        </section>
+          </motion.p>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            custom={0.08}
+            className="font-instrument text-[22px] leading-[1.35] tracking-[-0.01em] text-frost md:text-[28px]"
+          >
+            Raise the bar for private travel. Give chauffeurs a home built for
+            their craft, give clients a booking experience they can trust, and
+            make sure every journey is handled by someone who belongs behind the
+            wheel of a chauffeured car.
+          </motion.p>
+        </div>
+      </section>
 
-        <section id="safety" className="w-full">
-          <div className="flex flex-col items-center gap-10 w-full">
-            <div className="w-full max-w-[800px] space-y-6">
-              <div>
-                <h2 className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-3">
-                  Safety
-                </h2>
-                <h3 className="text-2xl font-semibold mb-3 text-slate-900">
-                  Our commitment to safety
-                </h3>
-                <p className="text-md text-slate-500 leading-relaxed">
-                  We want you to move freely, make the most of your time, and be
-                  connected to the people and places that matter most to you.
-                  That&apos;s why we are committed to safety, from the creation
-                  of new standards to the development of technology with the aim
-                  of reducing incidents.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold mb-1 text-slate-900">
-                  An inclusive community
-                </h3>
-                <p className="text-sm text-slate-500 max-w-[500px] leading-relaxed">
-                  Millions of riders and drivers share a set of Community
-                  Guidelines, holding each other accountable to do the right
-                  thing.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold mb-1 text-slate-900">
-                  Support at every turn
-                </h3>
-                <p className="text-sm text-slate-500 max-w-[500px] leading-relaxed">
-                  A specially trained team is available 24/7. Reach them in the
-                  app, day or night, with any questions or safety concerns.
-                </p>
-              </div>
-            </div>
-            <div className="w-full max-w-xl">
-              <Image
-                src="/safety.jpeg"
-                alt="Description of the image"
-                layout="responsive"
-                width={1200}
-                height={400}
-                objectFit="cover"
-                className="object-cover rounded-2xl shadow-sm"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section id="payment" className="w-full">
-          <div className="max-w-[800px] mx-auto w-full">
-            <h2 className="text-[10px] uppercase tracking-[0.25em] text-slate-400 mb-3">
-              Payments
-            </h2>
-            <h3 className="text-2xl font-semibold mb-3 text-slate-900">
-              All you need to know about Chauff payment methods
-            </h3>
-            <p className="text-md text-slate-500 leading-relaxed mb-6">
-              Arrived at your destination? No need to reach for your wallet –
-              payments with Chauff are cashless and convenient. You can pay with
-              your credit card or Apple Pay, and you&apos;ll receive a receipt
-              by email.
+      {/* The problem */}
+      <section className="border-t border-white/10 px-6 py-atlas-88 md:px-10">
+        <div className="mx-auto w-full max-w-[72rem]">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            custom={0}
+            className="mb-atlas-48 max-w-[40rem]"
+          >
+            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
+              The problem
             </p>
-            <div className="space-y-4">
-              <div>
-                <h4 className="text-sm font-semibold text-slate-900 mb-1">
-                  Enjoy secure payments.
-                </h4>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Whether you&apos;re booking a ride for a special occasion or
-                  regular transportation, you can trust that your payment
-                  details are protected every step of the way. Your satisfaction
-                  and security are our top priorities.
+            <h2 className="font-instrument text-[36px] font-normal leading-[1.1] tracking-[-0.02em] text-paper md:text-[48px]">
+              The gap between rideshare and real chauffeurs.
+            </h2>
+            <p className="mt-atlas-24 font-display text-[16px] leading-[1.6] text-ash md:text-[18px]">
+              When someone books private travel, they expect reliability,
+              discretion, and a professional behind the wheel. Today’s options
+              rarely deliver that end to end—and the chauffeurs who can are stuck
+              on tools that weren’t made for them.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 gap-atlas-48 md:grid-cols-3 md:gap-10">
+            {PROBLEMS.map((item, i) => (
+              <motion.div
+                key={item.title}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-40px" }}
+                custom={0.08 + i * 0.06}
+              >
+                <h3 className="mb-3 font-body text-[16px] text-paper">
+                  {item.title}
+                </h3>
+                <p className="font-display text-[15px] leading-[1.6] text-ash">
+                  {item.body}
                 </p>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-slate-900 mb-1">
-                  Unlock seamless transactions.
-                </h4>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  Choose convenience and flexibility with secure payment options
-                  powered by Stripe. Pay with cards and digital wallets like
-                  Apple Pay and Google Pay through a user-friendly checkout.
-                </p>
-              </div>
-            </div>
+              </motion.div>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
+
+      {/* The solution */}
+      <section className="border-t border-white/10 px-6 py-atlas-88 md:px-10 md:pb-atlas-128">
+        <div className="mx-auto w-full max-w-[72rem]">
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-40px" }}
+            custom={0}
+            className="mb-atlas-48 max-w-[40rem]"
+          >
+            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
+              The solution
+            </p>
+            <h2 className="font-instrument text-[36px] font-normal leading-[1.1] tracking-[-0.02em] text-paper md:text-[48px]">
+              A platform for the standard you expect.
+            </h2>
+            <p className="mt-atlas-24 font-display text-[16px] leading-[1.6] text-ash md:text-[18px]">
+              Chauff connects guests with dedicated chauffeurs and curated
+              partners. Book with clarity. Operate with transparent tools. Keep
+              every trip covered by professionals—not whoever is closest.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 gap-atlas-48 md:grid-cols-3 md:gap-10">
+            {SOLUTIONS.map((item, i) => (
+              <motion.div
+                key={item.title}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "-40px" }}
+                custom={0.08 + i * 0.06}
+              >
+                <h3 className="mb-3 font-body text-[16px] text-paper">
+                  {item.title}
+                </h3>
+                <p className="font-display text-[15px] leading-[1.6] text-ash">
+                  {item.body}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
     </main>
   );

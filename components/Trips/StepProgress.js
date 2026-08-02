@@ -5,7 +5,6 @@ const StepProgress = ({ timeline, stopoverLength }) => {
   const [steps, setSteps] = useState([]);
 
   useEffect(() => {
-    // Base steps
     const baseSteps = [
       { title: "Booking Accepted", content: "Booking has been accepted" },
       {
@@ -18,7 +17,6 @@ const StepProgress = ({ timeline, stopoverLength }) => {
       },
     ];
 
-    // Waypoints
     const waypointSteps = stopoverLength
       ? Array.from({ length: stopoverLength }, (_, i) => ({
           title: `Reached Waypoint ${i + 1}`,
@@ -26,46 +24,39 @@ const StepProgress = ({ timeline, stopoverLength }) => {
         }))
       : [];
 
-    // Final step
     const finalStep = {
       title: "Reached Final Point",
       content: "You have reached the final destination",
     };
 
-    // Combine all steps
     const generatedSteps = [...baseSteps, ...waypointSteps, finalStep];
     setSteps(generatedSteps);
 
-    // Determine current step
-    let current = 1; // Step 1: Order Accepted
-    if (timeline?.arrive) current = 2; // Step 2: Arrived at Start Location
-    if (timeline?.start) current = 3; // Step 3: Trip Started
+    let current = 1;
+    if (timeline?.arrive) current = 2;
+    if (timeline?.start) current = 3;
     if (timeline?.waypoints?.length > 0) {
       const completedWaypoints = timeline.waypoints.filter(
-        (waypoint) => waypoint.arrival
+        (waypoint) => waypoint.arrival,
       ).length;
       current += completedWaypoints;
     }
-    if (timeline?.stop) current = generatedSteps.length; // Final step
+    if (timeline?.stop) current = generatedSteps.length;
     setCurrentStep(current);
   }, [timeline, stopoverLength]);
 
   return (
-    <div className="flex flex-col items-start p-4">
+    <div className="mt-4 flex flex-col items-start border-t border-white/10 pt-4">
       {steps.map((step, index) => (
-        <div key={index} className="flex items-start mb-4">
-          {/* Step Circle */}
+        <div key={index} className="mb-4 flex items-start last:mb-0">
           <div
-            className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs mr-4
-              ${
-                index + 1 <= currentStep
-                  ? `${
-                      index === currentStep - 1
-                        ? "bg-blue-500 text-white animate-pulse"
-                        : "bg-blue-500 text-white"
-                    }`
-                  : "bg-gray-300 text-gray-700"
-              }`}
+            className={`mr-4 flex h-8 w-8 items-center justify-center rounded-full font-mono text-xs ${
+              index + 1 <= currentStep
+                ? index === currentStep - 1
+                  ? "animate-pulse bg-paper text-black"
+                  : "bg-paper text-black"
+                : "bg-graphite text-ash"
+            }`}
           >
             {index + 1 < currentStep ? (
               <i className="fa-solid fa-check"></i>
@@ -74,24 +65,23 @@ const StepProgress = ({ timeline, stopoverLength }) => {
             )}
           </div>
 
-          {/* Step Details */}
           <div>
-            <p>{step.content}</p>
+            <p className="font-body text-sm text-paper">{step.content}</p>
             {timeline && (
-              <p className="text-sm text-gray-500">
+              <p className="font-mono text-[11px] text-ash">
                 {index === 0
                   ? ""
                   : index === 1 && timeline.arrive
-                  ? `Time: ${timeline.arrive}`
-                  : index === 2 && timeline.start
-                  ? `Time: ${timeline.start}`
-                  : index > 2 &&
-                    index < steps.length - 1 &&
-                    timeline.waypoints[index - 3]?.arrival
-                  ? `Time: ${timeline.waypoints[index - 3]?.arrival}`
-                  : index === steps.length - 1 && timeline.stop
-                  ? `Time: ${timeline.stop}`
-                  : ""}
+                    ? `Time: ${timeline.arrive}`
+                    : index === 2 && timeline.start
+                      ? `Time: ${timeline.start}`
+                      : index > 2 &&
+                          index < steps.length - 1 &&
+                          timeline.waypoints[index - 3]?.arrival
+                        ? `Time: ${timeline.waypoints[index - 3]?.arrival}`
+                        : index === steps.length - 1 && timeline.stop
+                          ? `Time: ${timeline.stop}`
+                          : ""}
               </p>
             )}
           </div>

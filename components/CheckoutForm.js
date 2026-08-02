@@ -82,23 +82,30 @@ function CheckoutForm({ paymentMethod, fetchPaymentMethod, onSuccess }) {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center w-full">
-      <h2 className="mb-8 font-bold">
-        {paymentMethod ? "Manage Payment Information" : "Add Payment Information"}
+    <div className="flex w-full flex-col items-center justify-center text-paper">
+      <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+        Payment
+      </p>
+      <h2 className="mb-8 text-center font-instrument text-[28px] font-normal tracking-[-0.02em] text-paper">
+        {paymentMethod
+          ? "Manage Payment Information"
+          : "Add Payment Information"}
       </h2>
-      
+
       {paymentMethod && (
         <>
           <div className="mb-4">
-            <p className="text-sm mb-1">Selected Payment Method</p>
+            <p className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
+              Selected Payment Method
+            </p>
 
-            <div className=" border-[#e4e4e4] w-72 border py-2 px-4 rounded-md">
-              <div className="flex flex-row gap-6 items-center">
-                <p className="text-lg text-slate-300">
-                  <i class="fa-regular fa-credit-card fa-xl"></i>
+            <div className="w-72 rounded-xl border border-white/10 bg-graphite px-4 py-3">
+              <div className="flex flex-row items-center gap-6">
+                <p className="text-lg text-frost">
+                  <i className="fa-regular fa-credit-card fa-xl"></i>
                 </p>
                 <div>
-                  <p className=" text-md">
+                  <p className="font-body text-md text-paper">
                     <b>
                       {paymentMethod.card.brand.charAt(0).toUpperCase() +
                         paymentMethod.card.brand.slice(1)}{" "}
@@ -106,7 +113,7 @@ function CheckoutForm({ paymentMethod, fetchPaymentMethod, onSuccess }) {
                     </b>{" "}
                     **** {paymentMethod.card.last4}
                   </p>
-                  <p className=" text-xs text-slate-500">
+                  <p className="font-mono text-xs text-ash">
                     Expires on {paymentMethod.card.exp_month}/
                     {paymentMethod.card.exp_year}
                   </p>
@@ -115,14 +122,16 @@ function CheckoutForm({ paymentMethod, fetchPaymentMethod, onSuccess }) {
             </div>
           </div>
 
-          <p className="mb-4">OR</p>
+          <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
+            OR
+          </p>
         </>
       )}
 
-      <form onSubmit={handleSubmit} className="max-w-md">
+      <form onSubmit={handleSubmit} className="w-full max-w-md">
         <PaymentElement />
         <button
-          className="w-full bg-black text-white p-2 rounded-lg mt-2"
+          className="mt-4 w-full rounded-full bg-paper p-3 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50"
           disabled={!stripe}
         >
           {paymentMethod ? "Change Payment Method" : "Save Payment Info"}

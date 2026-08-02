@@ -28,7 +28,7 @@ function SecurePay() {
           </p>
           <div className="mt-8">
             <Link
-              href="/about#payment"
+              href="/payments"
               className="text-md text-slate-600 font-semibold hover:underline duration-300"
             >
               More about payments <i className="fa-solid fa-arrow-right"></i>

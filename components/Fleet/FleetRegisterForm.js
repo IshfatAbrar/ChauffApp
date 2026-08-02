@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import HomeNavbar from "../Home/HomeNavbar";
 
 const initialState = {
   contactName: "",
@@ -16,9 +17,16 @@ const initialState = {
   state: "",
   postcode: "",
   website: "",
-  estimatedFleetSize: "",
+  partnerType: "solo",
+  estimatedFleetSize: "1",
   notes: "",
 };
+
+const fieldClass =
+  "w-full rounded-xl border border-white/10 bg-graphite px-3.5 py-2.5 font-body text-sm text-paper placeholder-ash transition-colors focus:border-white/25 focus:outline-none";
+
+const labelClass =
+  "mb-1.5 block font-mono text-[10px] uppercase tracking-[0.18em] text-ash";
 
 export default function FleetRegisterForm() {
   const [form, setForm] = useState(initialState);
@@ -28,7 +36,15 @@ export default function FleetRegisterForm() {
   const router = useRouter();
 
   const onChange = (field) => (e) => {
-    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+    const value = e.target.value;
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+      if (field === "partnerType") {
+        next.estimatedFleetSize =
+          value === "solo" ? "1" : prev.estimatedFleetSize === "1" ? "" : prev.estimatedFleetSize;
+      }
+      return next;
+    });
     setError("");
     setSuccess("");
   };
@@ -45,6 +61,8 @@ export default function FleetRegisterForm() {
       phone,
       password,
       confirmPassword,
+      partnerType,
+      estimatedFleetSize,
     } = form;
 
     if (!contactName || !businessName || !email || !phone || !password) {
@@ -60,232 +78,282 @@ export default function FleetRegisterForm() {
     setSubmitting(true);
 
     try {
+      const payload = {
+        ...form,
+        estimatedFleetSize:
+          partnerType === "solo"
+            ? 1
+            : estimatedFleetSize
+              ? Number(estimatedFleetSize)
+              : undefined,
+      };
+
       const res = await fetch("/api/fleet/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message || "Unable to submit application.");
+        setError(data.message || "Unable to create partner account.");
         setSubmitting(false);
         return;
       }
 
-      setSuccess(data.message);
+      setSuccess(
+        data.message ||
+          "Partner account created. Redirecting you to sign in…"
+      );
       setForm(initialState);
 
-      // Optionally redirect after a short delay
       setTimeout(() => {
-        router.push("/");
-      }, 2000);
+        router.push("/signin?callbackUrl=/partner/dashboard");
+      }, 1500);
     } catch (err) {
-      console.error("Fleet registration error:", err);
+      console.error("Partner registration error:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const isSolo = form.partnerType === "solo";
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 py-10 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-3xl bg-white border border-slate-200 rounded-2xl shadow-sm p-8 space-y-8"
-      >
-        <div>
-          <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-2">
-            Create your Chauff fleet account
-          </h1>
-          <p className="text-sm text-slate-500">
-            Share a few details about your fleet business to create a fleet
-            account and manage your drivers in one place.
-          </p>
-        </div>
-
-        {error && (
-          <div className="rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
-            {error}
+    <main className="min-h-screen bg-void font-display text-paper">
+      <HomeNavbar />
+      <div className="flex items-center justify-center px-4 pb-atlas-88 pt-atlas-48 md:pt-atlas-64">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-3xl space-y-8 rounded-[24px] border border-white/10 bg-obsidian p-6 md:p-8"
+        >
+          <div>
+            <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
+              Partner with Chauff
+            </p>
+            <h1 className="mb-3 font-instrument text-[32px] font-normal tracking-[-0.02em] text-paper md:text-[42px]">
+              Create your partner account
+            </h1>
+            <p className="font-body text-sm text-ash">
+              For independent chauffeurs and fleet operators. One account to
+              receive bookings, manage payouts, and grow with Chauff.
+            </p>
           </div>
-        )}
-        {success && (
-          <div className="rounded-md bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
-            {success}
-          </div>
-        )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Primary contact name *
-              </label>
-              <input
-                type="text"
-                value={form.contactName}
-                onChange={onChange("contactName")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="e.g. Jane Smith"
-              />
+          {error && (
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 font-body text-sm text-red-300">
+              {error}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Business / fleet name *
-              </label>
-              <input
-                type="text"
-                value={form.businessName}
-                onChange={onChange("businessName")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="e.g. Elite Executive Transfers"
-              />
+          )}
+          {success && (
+            <div className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 font-body text-sm text-frost">
+              {success}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={onChange("email")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="you@company.com"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Phone *
-              </label>
-              <input
-                type="tel"
-                value={form.phone}
-                onChange={onChange("phone")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="+61 400 000 000"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Company registration number
-              </label>
-              <input
-                type="text"
-                value={form.companyRegistrationNumber}
-                onChange={onChange("companyRegistrationNumber")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="ABN / ACN"
-              />
+          )}
+
+          <div>
+            <p className={labelClass}>I am joining as *</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {[
+                {
+                  value: "solo",
+                  title: "Solo chauffeur",
+                  desc: "I drive myself — a one-person operation.",
+                },
+                {
+                  value: "fleet",
+                  title: "Fleet operator",
+                  desc: "I manage multiple chauffeurs or vehicles.",
+                },
+              ].map((option) => {
+                const selected = form.partnerType === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() =>
+                      onChange("partnerType")({ target: { value: option.value } })
+                    }
+                    className={`rounded-xl border px-4 py-3.5 text-left transition-colors ${
+                      selected
+                        ? "border-paper bg-white/5"
+                        : "border-white/10 hover:border-white/25"
+                    }`}
+                  >
+                    <p className="font-body text-sm text-paper">{option.title}</p>
+                    <p className="mt-1 font-mono text-[11px] leading-[1.45] text-ash">
+                      {option.desc}
+                    </p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Password *
-                </label>
+                <label className={labelClass}>Primary contact name *</label>
                 <input
-                  type="password"
-                  value={form.password}
-                  onChange={onChange("password")}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                  placeholder="Create a secure password"
+                  type="text"
+                  value={form.contactName}
+                  onChange={onChange("contactName")}
+                  className={fieldClass}
+                  placeholder="e.g. Jane Smith"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Confirm password *
-                </label>
-                <input
-                  type="password"
-                  value={form.confirmPassword}
-                  onChange={onChange("confirmPassword")}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                  placeholder="Re-enter your password"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Website
-              </label>
-              <input
-                type="url"
-                value={form.website}
-                onChange={onChange("website")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                placeholder="https://yourcompany.com"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Estimated fleet size
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={form.estimatedFleetSize}
-                  onChange={onChange("estimatedFleetSize")}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
-                  placeholder="e.g. 12"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  City
+                <label className={labelClass}>
+                  {isSolo ? "Trading / business name *" : "Business / fleet name *"}
                 </label>
                 <input
                   type="text"
-                  value={form.city}
-                  onChange={onChange("city")}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900"
+                  value={form.businessName}
+                  onChange={onChange("businessName")}
+                  className={fieldClass}
+                  placeholder={
+                    isSolo
+                      ? "e.g. Jane Smith Chauffeur"
+                      : "e.g. Elite Executive Transfers"
+                  }
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Email *</label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={onChange("email")}
+                  className={fieldClass}
+                  placeholder="you@company.com"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>Phone *</label>
+                <input
+                  type="tel"
+                  value={form.phone}
+                  onChange={onChange("phone")}
+                  className={fieldClass}
+                  placeholder="+61 400 000 000"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>
+                  Company registration number
+                </label>
+                <input
+                  type="text"
+                  value={form.companyRegistrationNumber}
+                  onChange={onChange("companyRegistrationNumber")}
+                  className={fieldClass}
+                  placeholder="ABN / ACN (optional)"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Notes (vehicles, coverage areas, special requirements)
-              </label>
-              <textarea
-                rows={4}
-                value={form.notes}
-                onChange={onChange("notes")}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 resize-none"
-                placeholder="Tell us a bit more about your fleet and how you operate."
-              />
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-3">
+                <div>
+                  <label className={labelClass}>Password *</label>
+                  <input
+                    type="password"
+                    value={form.password}
+                    onChange={onChange("password")}
+                    className={fieldClass}
+                    placeholder="Create a secure password"
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Confirm password *</label>
+                  <input
+                    type="password"
+                    value={form.confirmPassword}
+                    onChange={onChange("confirmPassword")}
+                    className={fieldClass}
+                    placeholder="Re-enter your password"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>Website</label>
+                <input
+                  type="url"
+                  value={form.website}
+                  onChange={onChange("website")}
+                  className={fieldClass}
+                  placeholder="https://yourcompany.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {!isSolo && (
+                  <div>
+                    <label className={labelClass}>Number of chauffeurs</label>
+                    <input
+                      type="number"
+                      min="2"
+                      value={form.estimatedFleetSize}
+                      onChange={onChange("estimatedFleetSize")}
+                      className={fieldClass}
+                      placeholder="e.g. 12"
+                    />
+                  </div>
+                )}
+                <div className={!isSolo ? "" : "sm:col-span-2"}>
+                  <label className={labelClass}>City</label>
+                  <input
+                    type="text"
+                    value={form.city}
+                    onChange={onChange("city")}
+                    className={fieldClass}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className={labelClass}>
+                  Notes (vehicles, coverage areas, special requirements)
+                </label>
+                <textarea
+                  rows={4}
+                  value={form.notes}
+                  onChange={onChange("notes")}
+                  className={`${fieldClass} resize-none`}
+                  placeholder={
+                    isSolo
+                      ? "Tell us about your vehicle, service areas, and how you operate."
+                      : "Tell us a bit more about your fleet and how you operate."
+                  }
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="border-t border-slate-100 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-xs text-slate-500 max-w-md">
-            By submitting, you agree to be contacted by the Chauff team about
-            partnership opportunities. We’ll typically respond within 1–2
-            business days.
-          </p>
-          <button
-            type="submit"
-            disabled={submitting}
-            className={`inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition ${
-              submitting
-                ? "bg-slate-400 cursor-not-allowed"
-                : "bg-slate-900 hover:bg-slate-800"
-            }`}
-          >
-            {submitting ? "Creating account..." : "Create fleet account"}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-md font-mono text-[11px] leading-[1.55] text-ash">
+              By submitting, you create a partner account and can sign in to the
+              partner dashboard. Connect Stripe in Payments to receive payouts.
+            </p>
+            <button
+              type="submit"
+              disabled={submitting}
+              className={`inline-flex items-center justify-center rounded-full px-7 py-3 font-body text-[15px] transition ${
+                submitting
+                  ? "cursor-not-allowed bg-graphite text-ash"
+                  : "bg-paper text-black hover:opacity-85"
+              }`}
+            >
+              {submitting ? "Creating account..." : "Create partner account"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
   );
 }
-
-

@@ -12,8 +12,7 @@ function OngoingBooking() {
 
   const email = session?.user?.email;
 
-  // Polling interval in milliseconds
-  const POLLING_INTERVAL = 10000; // Fetch data every 10 seconds
+  const POLLING_INTERVAL = 10000;
 
   const extractDate = (dateString) => {
     const dateObj = new Date(dateString);
@@ -36,7 +35,6 @@ function OngoingBooking() {
     return parts[0]?.trim() || "Unknown";
   };
 
-  // Fetch ongoing bookings with polling
   useEffect(() => {
     const fetchOngoingBookings = async () => {
       setShowLoading(true);
@@ -45,7 +43,7 @@ function OngoingBooking() {
         if (bookings) {
           const active = bookings.filter((booking) => booking.timeline.start);
           const nonActive = bookings.filter(
-            (booking) => !booking.timeline.start
+            (booking) => !booking.timeline.start,
           );
 
           setActiveBookings(active);
@@ -59,11 +57,11 @@ function OngoingBooking() {
     };
 
     if (email) {
-      fetchOngoingBookings(); // Fetch immediately
-      const intervalId = setInterval(fetchOngoingBookings, POLLING_INTERVAL); // Poll every 10 seconds
+      fetchOngoingBookings();
+      const intervalId = setInterval(fetchOngoingBookings, POLLING_INTERVAL);
 
       return () => {
-        clearInterval(intervalId); // Clear the interval on unmount or dependency change
+        clearInterval(intervalId);
       };
     }
   }, [email]);
@@ -71,58 +69,57 @@ function OngoingBooking() {
   const renderBookings = (booking) => (
     <div
       key={booking.id}
-      className="flex flex-col bg-white p-5 border border-slate-200 rounded-2xl relative mb-4 shadow-sm"
+      className="relative mb-4 flex flex-col rounded-2xl border border-white/10 bg-obsidian p-5"
     >
-      <h2 className="text-lg lg:text-2xl font-semibold text-slate-900">
+      <h2 className="pr-24 font-instrument text-[22px] font-normal tracking-[-0.02em] text-paper md:text-[28px]">
         {`${extractLocation(booking.pickup)} to ${extractLocation(
-          booking.dropoff
+          booking.dropoff,
         )}`}
       </h2>
 
-      <p className="text-sm lg:text-md text-slate-500">
+      <p className="mt-1 font-body text-sm text-frost">
         {extractDate(booking.time)}
       </p>
-      <p className="text-sm lg:text-md text-slate-500">{`$ ${booking.price}`}</p>
-      <p className="text-sm lg:text-md text-slate-500">
+      <p className="font-body text-sm text-frost">{`$ ${booking.price}`}</p>
+      <p className="font-body text-sm text-frost">
         {booking?.chauffeurName
           ? `with ${booking.rider?.name}`
           : "chauffeur not yet assigned"}
       </p>
 
-      {/* Status text */}
-      <p className="absolute top-0 right-0 mr-4 mt-4 text-xs md:text-sm text-slate-500 flex items-center gap-1">
+      <p className="absolute right-5 top-5 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ash">
         {booking.timeline.start
           ? "Started"
           : booking.timeline.arrive
-          ? "Arrived"
-          : booking.status}
+            ? "Arrived"
+            : booking.status}
         <span
           className="inline-block h-2 w-2 rounded-full"
           style={{
             backgroundColor: booking.timeline.start
-              ? "#22c55e"
+              ? "#f8f8f8"
               : booking.timeline.arrive
-              ? "#22c55e"
-              : "#9ca3af",
+                ? "#f8f8f8"
+                : "#808080",
           }}
         />
       </p>
-      {/* StepProgress dynamically updates based on booking.timeline */}
+
       <StepProgress
         timeline={booking.timeline}
         stopoverLength={booking.stopover.length}
       />
-      <p className="text-slate-400 text-xs mt-4">ID: {booking.id}</p>
+      <p className="mt-2 font-mono text-[11px] text-ash">ID: {booking.id}</p>
     </div>
   );
 
   const renderNoBookings = () => (
-    <div className="flex flex-col bg-white p-5 border border-slate-200 rounded-2xl shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">
+    <div className="flex flex-col rounded-2xl border border-white/10 bg-obsidian p-5">
+      <h2 className="flex items-center font-body text-lg text-paper">
         No active trips
         {showLoading && (
           <div
-            className="ml-2 text-slate-300 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
+            className="ml-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-ash border-r-transparent"
             role="status"
           >
             <span className="sr-only">Loading...</span>
@@ -133,8 +130,8 @@ function OngoingBooking() {
   );
 
   return (
-    <div className="mb-12">
-      <h2 className="mb-4 text-sm font-semibold tracking-[0.25em] uppercase text-slate-400">
+    <div className="mb-atlas-64">
+      <h2 className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
         Ongoing trips
       </h2>
       {activeBookings.length === 0 && nonActiveBookings.length === 0

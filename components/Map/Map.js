@@ -6,33 +6,15 @@ import {
   MarkerF,
   OverlayView,
   OverlayViewF,
-  useJsApiLoader,
 } from "@react-google-maps/api";
 import { SourceContext } from "../../context/SourceContext";
 import { DestinationContext } from "../../context/DestinationContext";
 import { StopoverContext } from "../../context/StopoverContext";
 
 function Map() {
-  const [isSmallScreen, setIsSmallScreen] = useState(window.innerWidth < 768); // Assuming small screen width is less than 768px
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768); // Update state based on screen width
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize(); // Set initial screen size
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  const mapHeight = isSmallScreen ? window.innerHeight / 2 : window.innerHeight; // Adjust height based on screen size
-
   const containerStyle = {
     width: "100%",
-    height: mapHeight,
+    height: "100%",
   };
 
   const { source, setSource } = useContext(SourceContext);
@@ -155,8 +137,8 @@ function Map() {
             position={{ lat: source.lat, lng: source.lng }}
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
           >
-            <div className="p-1 bg-white font-semibold shadow-lg inline-block">
-              <p className="text-black font-mono text-[18px]">{source.label}</p>
+            <div className="inline-block rounded-lg border border-black/20 bg-black px-2.5 py-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
+              <p className="font-mono text-[12px] text-white">{source.label}</p>
             </div>
           </OverlayViewF>
         </MarkerF>
@@ -177,8 +159,8 @@ function Map() {
             position={{ lat: destination.lat, lng: destination.lng }}
             mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
           >
-            <div className="p-1 bg-white font-semibold shadow-lg inline-block">
-              <p className="text-black font-mono text-[18px]">
+            <div className="inline-block rounded-lg border border-black/20 bg-black px-2.5 py-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
+              <p className="font-mono text-[12px] text-white">
                 {destination.label}
               </p>
             </div>
@@ -203,8 +185,8 @@ function Map() {
                 position={{ lat: stop.lat, lng: stop.lng }}
                 mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
               >
-                <div className="p-1 bg-white font-semibold shadow-lg inline-block">
-                  <p className="text-black font-mono text-[18px]">
+                <div className="inline-block rounded-lg border border-black/20 bg-black px-2.5 py-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.35)]">
+                  <p className="font-mono text-[12px] text-white">
                     {stop.label}
                   </p>
                 </div>
@@ -218,7 +200,7 @@ function Map() {
           directions={directionRoutePoints}
           options={{
             polylineOptions: {
-              strokeColor: "#000",
+              strokeColor: "#000000",
               strokeWeight: 4,
             },
             suppressMarkers: true,

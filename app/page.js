@@ -1,61 +1,28 @@
 "use client";
-import React, { useState } from "react";
-import { motion } from "framer-motion";
 
-import Intro from "./../components/Home/Intro";
-
-import Driver from "./../components/Home/Driver";
-import CoverFlow from "./../components/Home/CoverFlow";
-
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import "swiper/css/thumbs";
-import "swiper/css/effect-coverflow";
-import "swiper/css/mousewheel";
-import "swiper/css/autoplay";
-import "swiper/css/effect-fade";
-import "swiper/css/grid";
-import Safety from "./../components/Home/Safety";
-import SecurePay from "./../components/Home/SecurePay";
-import Rewind from "./../components/Home/Rewind";
-import Payment from "./../components/Home/Payment";
-
-const section_2_buttons = ["Tour", "Airport Transfer", "Corporate Travel"];
+import React from "react";
+import HomeNavbar from "./../components/Home/HomeNavbar";
+import Hero from "./../components/Home/Hero";
+import Invite from "./../components/Home/Invite";
+import StackCarousel from "./../components/Home/StackCarousel";
+import FeatureBlock from "./../components/Home/FeatureBlock";
+import FeatureList from "./../components/Home/FeatureList";
+import TripIntelligence from "./../components/Home/TripIntelligence";
+import ClosingCTA from "./../components/Home/ClosingCTA";
 
 export default function Home() {
-  const [section, setSection] = useState("Tour");
   return (
-    <div className="flex flex-col items-center justify-center bg-[#f8f8f8] pb-[250px]">
-      <Intro />
-
-      <div className="w-full border-t border-slate-200" />
-      <Rewind />
-
-      <div className="w-full border-t border-slate-200" />
-      <CoverFlow />
-
-      <div className="w-full border-t border-slate-200" />
-      <motion.img
-        src="choose_chauff.jpeg"
-        className="w-full h-[400px] object-cover"
-        alt="Choose Chauff Image"
-        initial={{ opacity: 0, y: 32 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-      />
-
-      <div className="w-full border-t border-slate-200" />
-      <Safety />
-
-      <div className="w-full border-t border-slate-200" />
-      <Payment />
-
-      <div className="w-full border-t border-slate-200" />
-      <Driver />
-    </div>
+    <main className="min-h-screen bg-void font-display text-paper">
+      <div className="bg-void">
+        <HomeNavbar />
+        <Hero />
+      </div>
+      <Invite />
+      <StackCarousel />
+      <FeatureBlock />
+      <FeatureList />
+      <TripIntelligence />
+      <ClosingCTA />
+    </main>
   );
 }

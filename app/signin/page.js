@@ -8,7 +8,14 @@ import React from "react";
 export default async function page() {
   const session = await getServerSession(authOptions);
 
-  if (session) redirect("/");
+  if (session?.user?.role === "fleet") {
+    redirect("/partner/dashboard");
+  }
+
+  if (session) {
+    redirect("/");
+  }
+
   return (
     <div>
       <LoginForm />

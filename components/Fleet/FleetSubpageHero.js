@@ -1,15 +1,12 @@
-/** Hero block aligned with /fleet marketing page (pill, gradient title, muted copy). */
-export default function FleetSubpageHero({ eyebrow, title, description }) {
+/** @deprecated Prefer FleetPageHeader for fleet console pages */
+export default function FleetSubpageHero({ title, description }) {
   return (
-    <section className="max-w-3xl mx-auto px-4 pb-10 text-center">
-      <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs text-slate-500 shadow-sm mb-6">
-        {eyebrow}
-      </div>
-      <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-[1.15] mb-4 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-500 bg-clip-text text-transparent">
+    <section className="px-6 pt-8 pb-2 md:px-8 md:pt-10">
+      <h1 className="max-w-3xl font-body text-[32px] font-medium leading-[1.15] tracking-[-0.02em] text-paper md:text-[36px]">
         {title}
       </h1>
       {description && (
-        <p className="text-sm md:text-base text-slate-500 leading-relaxed max-w-xl mx-auto">
+        <p className="mt-2 max-w-2xl font-body text-[15px] text-ash">
           {description}
         </p>
       )}

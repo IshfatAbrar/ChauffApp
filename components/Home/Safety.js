@@ -33,7 +33,7 @@ function Safety() {
           </p>
           <div className="mt-8">
             <Link
-              href="/about#safety"
+              href="/safety"
               className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 px-5 py-2 text-sm font-medium hover:border-slate-300 hover:bg-slate-50 transition shadow-sm"
             >
               More about Safety <i className="fa-solid fa-arrow-right ml-2"></i>

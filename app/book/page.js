@@ -10,8 +10,9 @@ import { useJsApiLoader } from "@react-google-maps/api";
 import { TollContext } from "../../context/TollContext";
 import { DistanceContext } from "../../context/DistanceContext";
 import OneStopTollCalculator from "../../components/Map/OneStopTollCalculator";
-import PaymentModal from "../../components/Booking/PaymentModal"; // Import the Payment Modal
+import PaymentModal from "../../components/Booking/PaymentModal";
 import { useSession } from "next-auth/react";
+import HomeNavbar from "../../components/Home/HomeNavbar";
 
 export default function Page() {
   const [source, setSource] = useState([]);
@@ -21,7 +22,7 @@ export default function Page() {
   const [duration, setDuration] = useState();
   const [toll, setToll] = useState(null);
   const [distance, setDistance] = useState(0);
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); // State to handle modal visibility
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState(null);
 
   // Multi-region support: detect customer's region
@@ -36,22 +37,37 @@ export default function Page() {
     libraries: ["places"],
   });
 
-  const handleBookingConfirmation = () => {
-    // Logic for booking confirmation, if needed
-    setIsPaymentModalOpen(true); // Open the payment modal
-  };
-
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const email = session?.user?.email;
+  const isCustomer =
+    status === "authenticated" && session?.user?.role === "user";
 
-  // Detect customer region on page load
+  // Logged-in customers use account region; anonymous preview uses IP detect
   useEffect(() => {
-    const detectRegion = async () => {
+    if (status === "loading") return;
+
+    let cancelled = false;
+
+    const loadRegion = async () => {
+      setRegionReady(false);
       try {
+        if (isCustomer) {
+          const res = await fetch("/api/customer/me");
+          const data = await res.json();
+          if (!cancelled && res.ok) {
+            setCustomerRegion(data.user?.region || "US");
+            setCurrency(data.currency || "USD");
+            setStripePublishableKey(data.stripePublishableKey || null);
+            console.log(
+              `🌍 Account region: ${data.user?.region} (${data.currency})`,
+            );
+            return;
+          }
+        }
+
         const res = await fetch("/api/detect-region");
         const data = await res.json();
-
-        if (data.success) {
+        if (!cancelled && data.success) {
           setCustomerRegion(data.region);
           setCurrency(data.currency);
           setStripePublishableKey(data.stripePublishableKey);
@@ -60,17 +76,21 @@ export default function Page() {
           );
         }
       } catch (error) {
-        console.error("Error detecting region:", error);
-        // Default to US if detection fails
-        setCustomerRegion("US");
-        setCurrency("USD");
+        console.error("Error loading region:", error);
+        if (!cancelled) {
+          setCustomerRegion("US");
+          setCurrency("USD");
+        }
       } finally {
-        setRegionReady(true);
+        if (!cancelled) setRegionReady(true);
       }
     };
 
-    detectRegion();
-  }, []);
+    loadRegion();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, isCustomer]);
 
   const fetchPaymentMethod = async (region = customerRegion) => {
     if (!email || !regionReady) {
@@ -116,33 +136,39 @@ export default function Page() {
               value={{ destination, setDestination }}
             >
               <TimeContext.Provider value={{ time, setTime }}>
-                {isLoaded ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3">
-                    <div className="col-span-2 md:order-1 lg:order-2">
-                      <Map />
+                <main className="min-h-screen bg-void font-display text-paper">
+                  <HomeNavbar />
+                  {isLoaded ? (
+                    <div className="grid grid-cols-1 gap-3 px-3 pb-3 md:h-[calc(100svh-5.5rem)] md:grid-cols-3 md:px-4 md:pb-4">
+                      <div className="order-2 overflow-y-auto no-scrollbar rounded-[24px] border border-white/10 bg-obsidian md:order-1 md:h-full">
+                        <OneStopTollCalculator setDuration={setDuration} />
+                        <Booking
+                          duration={duration}
+                          setIsPaymentModalOpen={setIsPaymentModalOpen}
+                          paymentMethod={paymentMethod}
+                          customerRegion={customerRegion}
+                          currency={currency}
+                        />
+                      </div>
+                      <div className="relative order-1 h-[42svh] min-h-[280px] overflow-hidden rounded-[24px] border border-white/10 md:order-2 md:col-span-2 md:h-full md:rounded-[32px]">
+                        <Map />
+                      </div>
                     </div>
-                    <div
-                      className="pt-6 md:pt-16 order-2 md:order-2 lg:order-1 border-r border-slate-200 bg-[#f8f8f8] overflow-y-scroll no-scrollbar"
-                      style={{ height: window.innerHeight }}
-                    >
-                      <OneStopTollCalculator setDuration={setDuration} />
-                      <Booking
-                        duration={duration}
-                        setIsPaymentModalOpen={setIsPaymentModalOpen}
-                        paymentMethod={paymentMethod}
-                        customerRegion={customerRegion}
-                        currency={currency}
-                      />
+                  ) : (
+                    <div className="flex h-[calc(100svh-5.5rem)] items-center justify-center px-6">
+                      <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-ash">
+                        Preparing your chauffeur map…
+                      </p>
                     </div>
-                  </div>
-                ) : null}
-                <PaymentModal
-                  isPaymentModalOpen={isPaymentModalOpen}
-                  setIsPaymentModalOpen={setIsPaymentModalOpen}
-                  onPaymentMethodUpdated={fetchPaymentMethod}
-                  customerRegion={customerRegion}
-                  stripePublishableKey={stripePublishableKey}
-                />
+                  )}
+                  <PaymentModal
+                    isPaymentModalOpen={isPaymentModalOpen}
+                    setIsPaymentModalOpen={setIsPaymentModalOpen}
+                    onPaymentMethodUpdated={fetchPaymentMethod}
+                    customerRegion={customerRegion}
+                    stripePublishableKey={stripePublishableKey}
+                  />
+                </main>
               </TimeContext.Provider>
             </DestinationContext.Provider>
           </SourceContext.Provider>
