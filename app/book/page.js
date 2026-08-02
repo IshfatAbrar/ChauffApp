@@ -142,6 +142,7 @@ export default function Page() {
                         <OneStopTollCalculator setDuration={setDuration} />
                         <Booking
                           duration={duration}
+                          setDuration={setDuration}
                           setIsPaymentModalOpen={setIsPaymentModalOpen}
                           paymentMethod={paymentMethod}
                           customerRegion={customerRegion}

@@ -96,15 +96,39 @@ function Autocomplete({ type, index, handleTrashClick }) {
     }
   };
 
-  const getLatAndLng = (place, type) => {
-    if (!place?.value?.place_id || typeof google === "undefined") return;
+  const getLatAndLng = async (place, type) => {
+    if (!place?.value?.place_id) return;
 
     const placeId = place.value.place_id;
     const labelFallback =
-      place.label || place.value.description || place.value.structured_formatting?.main_text || "";
+      place.label ||
+      place.value.description ||
+      place.value.structured_formatting?.main_text ||
+      "";
+
+    // Prefer server place details (works reliably on mobile / restricted keys)
+    try {
+      const res = await fetch(
+        `/api/places/details?place_id=${encodeURIComponent(placeId)}`
+      );
+      const data = await res.json();
+      if (res.ok && data?.place?.lat != null && data?.place?.lng != null) {
+        applyPlace(type, {
+          lat: data.place.lat,
+          lng: data.place.lng,
+          name: data.place.label || data.place.name || labelFallback,
+          label: data.place.name || labelFallback,
+        });
+        return;
+      }
+    } catch (err) {
+      console.warn("Server place details failed:", err);
+    }
+
+    if (typeof google === "undefined") return;
 
     const service = new google.maps.places.PlacesService(
-      document.createElement("div"),
+      document.createElement("div")
     );
 
     service.getDetails(
@@ -123,7 +147,6 @@ function Autocomplete({ type, index, handleTrashClick }) {
           return;
         }
 
-        // Fallback when Places details fails on mobile
         const geocoder = new google.maps.Geocoder();
         geocoder.geocode({ placeId }, (results, geoStatus) => {
           if (geoStatus === "OK" && results?.[0]?.geometry?.location) {
@@ -136,12 +159,12 @@ function Autocomplete({ type, index, handleTrashClick }) {
             });
           }
         });
-      },
+      }
     );
   };
 
   const handleClear = () => {
-    setValue([]);
+    setValue(null);
     if (type === "source") {
       setSource([]);
     } else if (type === "stop") {
@@ -253,8 +276,12 @@ function Autocomplete({ type, index, handleTrashClick }) {
           selectProps={{
             value,
             onChange: (place) => {
-              getLatAndLng(place, type);
+              if (!place) {
+                handleClear();
+                return;
+              }
               setValue(place);
+              getLatAndLng(place, type);
             },
             placeholder: placeholder,
             isClearable: true,
