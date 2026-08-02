@@ -210,7 +210,7 @@ function Booking({
 
           <button
             type="button"
-            className="relative z-20 mt-2 min-h-[48px] w-full touch-manipulation rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:opacity-70"
+            className="relative z-[20] mt-2 min-h-[48px] w-full touch-manipulation rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:opacity-70"
             onClick={onSearchHandler}
             disabled={searching}
           >

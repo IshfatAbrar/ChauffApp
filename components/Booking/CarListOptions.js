@@ -89,7 +89,8 @@ function CarListOptions({
       </div>
       {selectedCar?.name && paymentMethod ? (
         <button
-          className="z-10 mt-4 flex rounded-full bg-paper px-6 py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 md:fixed md:bottom-5 md:left-5 md:right-auto"
+          type="button"
+          className="relative z-[20] mt-4 flex min-h-[48px] w-full touch-manipulation items-center justify-center rounded-full bg-paper px-6 py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85"
           onClick={() => {
             const calculatedPrice = calculatePrice(
               selectedCar,
@@ -105,7 +106,8 @@ function CarListOptions({
         </button>
       ) : selectedCar?.name ? (
         <button
-          className="z-10 mt-4 flex rounded-full bg-paper px-6 py-3.5 font-body text-[15px] text-black transition-opacity hover:opacity-85 md:fixed md:bottom-5 md:left-5 md:right-auto"
+          type="button"
+          className="relative z-[20] mt-4 flex min-h-[48px] w-full touch-manipulation items-center justify-center rounded-full bg-paper px-6 py-3.5 font-body text-[15px] text-black transition-opacity hover:opacity-85"
           onClick={() => {
             setIsPaymentModalOpen(true);
           }}

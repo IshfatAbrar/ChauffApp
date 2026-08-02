@@ -191,3 +191,11 @@ html.pwa-standalone .hide-in-pwa {
 html.pwa-standalone .show-in-pwa {
   display: flex !important;
 }
+
+/* Keep Imgni voice chatbot from intercepting taps on booking/auth screens */
+html.hide-imgni-chatbot #imgni-widget,
+html.hide-imgni-chatbot #imgni-widget * {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

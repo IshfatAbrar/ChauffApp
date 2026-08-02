@@ -2,6 +2,7 @@ import { IBM_Plex_Mono, Instrument_Serif } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Footer from "./../components/Footer";
+import ChatbotGate from "./../components/ChatbotGate";
 import ImgniIdentify from "./../components/ImgniIdentify";
 import PwaMode from "./../components/PwaMode";
 import RegisterServiceWorker from "./../components/RegisterServiceWorker";
@@ -94,6 +95,7 @@ export default function RootLayout({ children }) {
       >
         <AuthProvider>
           <PwaMode />
+          <ChatbotGate />
           <RegisterServiceWorker />
           <ImgniIdentify />
           {children}
