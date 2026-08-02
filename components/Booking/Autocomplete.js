@@ -3,178 +3,206 @@
 import { DestinationContext } from "../../context/DestinationContext";
 import { SourceContext } from "../../context/SourceContext";
 import { StopoverContext } from "../../context/StopoverContext";
-import React, { useContext, useEffect, useState } from "react";
-import GooglePlacesAutocomplete from "react-google-places-autocomplete";
-
-const placesStyles = {
-  control: (provided) => ({
-    ...provided,
-    background: "transparent",
-    border: "none",
-    boxShadow: "none",
-    cursor: "text",
-    minHeight: 44,
-    ":hover": {
-      border: "none",
-    },
-  }),
-  valueContainer: (provided) => ({
-    ...provided,
-    padding: "2px 8px",
-  }),
-  input: (provided) => ({
-    ...provided,
-    color: "#f8f8f8",
-    outline: "none",
-  }),
-  singleValue: (provided) => ({
-    ...provided,
-    color: "#f8f8f8",
-  }),
-  placeholder: (provided) => ({
-    ...provided,
-    color: "#808080",
-  }),
-  menu: (provided) => ({
-    ...provided,
-    background: "#1e1e1e",
-    border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: 12,
-    overflow: "hidden",
-    zIndex: 9999,
-  }),
-  menuPortal: (provided) => ({
-    ...provided,
-    zIndex: 9999,
-  }),
-  menuList: (provided) => ({
-    ...provided,
-    padding: 4,
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    background: state.isFocused ? "#272727" : "transparent",
-    color: "#f8f8f8",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontSize: 14,
-  }),
-  indicatorSeparator: () => ({
-    display: "none",
-  }),
-};
+import React, { useContext, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { normalizePlace } from "../../lib/computeRoute";
 
 function Autocomplete({ type, index, handleTrashClick }) {
-  const [value, setValue] = useState(null);
-  const [placeholder, setPlaceholder] = useState(null);
-  const [isLocating, setIsLocating] = useState(false);
-  const { source, setSource } = useContext(SourceContext);
-  const { destination, setDestination } = useContext(DestinationContext);
-  const { stopover, setStopover } = useContext(StopoverContext);
+  const listId = useId();
+  const containerRef = useRef(null);
+  const skipFetchRef = useRef(false);
+  const sessionToken = useRef(
+    typeof crypto !== "undefined" && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random()}`
+  );
+
+  const [query, setQuery] = useState("");
+  const [predictions, setPredictions] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [resolving, setResolving] = useState(false);
+  const [menuBox, setMenuBox] = useState(null);
+  const [mounted, setMounted] = useState(false);
+  const [placeholder, setPlaceholder] = useState("Search location");
+  const [selectedLabel, setSelectedLabel] = useState("");
+
+  const { setSource } = useContext(SourceContext);
+  const { setDestination } = useContext(DestinationContext);
+  const { setStopover } = useContext(StopoverContext);
 
   useEffect(() => {
-    if (type == "source") {
-      setPlaceholder("Pickup Location");
-    } else if (type === "stop") {
-      setPlaceholder("Stopover Location");
-    } else {
-      setPlaceholder("Dropoff Location");
-    }
-  }, []);
+    setMounted(true);
+    if (type === "source") setPlaceholder("Pickup Location");
+    else if (type === "stop") setPlaceholder("Stopover Location");
+    else setPlaceholder("Dropoff Location");
+  }, [type]);
 
-  const applyPlace = (type, next) => {
-    if (type === "source") {
-      setSource(next);
-    } else if (type === "stop") {
-      setStopover((prevStopover) => {
-        const updatedStopovers = [...prevStopover];
-        updatedStopovers[index] = next;
-        return updatedStopovers;
+  const applyPlace = (next) => {
+    const place = normalizePlace(next);
+    if (!place) return false;
+    if (type === "source") setSource(place);
+    else if (type === "stop") {
+      setStopover((prev) => {
+        const updated = [...prev];
+        updated[index] = place;
+        return updated;
       });
-    } else {
-      setDestination(next);
-    }
+    } else setDestination(place);
+    return true;
   };
 
-  const getLatAndLng = async (place, type) => {
-    if (!place?.value?.place_id) return;
+  const clearPlace = () => {
+    skipFetchRef.current = true;
+    setQuery("");
+    setSelectedLabel("");
+    setPredictions([]);
+    setOpen(false);
+    if (type === "source") setSource([]);
+    else if (type === "stop") {
+      setStopover((prev) => {
+        const updated = [...prev];
+        updated[index] = { lat: null, lng: null, name: "", label: "" };
+        return updated;
+      });
+    } else setDestination([]);
+  };
 
-    const placeId = place.value.place_id;
-    const labelFallback =
-      place.label ||
-      place.value.description ||
-      place.value.structured_formatting?.main_text ||
+  const updateMenuBox = () => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    setMenuBox({
+      top: rect.bottom + 6,
+      left: rect.left,
+      width: rect.width,
+    });
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    updateMenuBox();
+    const onScroll = () => updateMenuBox();
+    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", onScroll, true);
+    return () => {
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", onScroll, true);
+    };
+  }, [open, predictions.length]);
+
+  useEffect(() => {
+    // After a selection we set the input text — do not search again
+    if (skipFetchRef.current) {
+      skipFetchRef.current = false;
+      return undefined;
+    }
+
+    const q = query.trim();
+    if (q.length < 2) {
+      setPredictions([]);
+      setOpen(false);
+      return undefined;
+    }
+
+    // Already confirmed this exact place — keep the menu closed
+    if (selectedLabel && q === selectedLabel.trim()) {
+      setPredictions([]);
+      setOpen(false);
+      return undefined;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          input: q,
+          sessiontoken: sessionToken.current,
+        });
+        const res = await fetch(`/api/places/autocomplete?${params}`, {
+          signal: controller.signal,
+        });
+        const data = await res.json();
+        if (!controller.signal.aborted) {
+          const list = Array.isArray(data.predictions) ? data.predictions : [];
+          setPredictions(list);
+          setOpen(list.length > 0);
+          updateMenuBox();
+        }
+      } catch (err) {
+        if (err?.name !== "AbortError") {
+          console.warn("Autocomplete failed:", err);
+        }
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, 220);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query, selectedLabel]);
+
+  const selectPrediction = async (prediction) => {
+    const placeId = prediction?.place_id;
+    if (!placeId) return;
+
+    const label =
+      prediction.description ||
+      prediction.structured_formatting?.main_text ||
       "";
 
-    // Prefer server place details (works reliably on mobile / restricted keys)
+    skipFetchRef.current = true;
+    setResolving(true);
+    setOpen(false);
+    setPredictions([]);
+    setQuery(label);
+    setSelectedLabel(label);
+
     try {
-      const res = await fetch(
-        `/api/places/details?place_id=${encodeURIComponent(placeId)}`
-      );
-      const data = await res.json();
-      if (res.ok && data?.place?.lat != null && data?.place?.lng != null) {
-        applyPlace(type, {
-          lat: data.place.lat,
-          lng: data.place.lng,
-          name: data.place.label || data.place.name || labelFallback,
-          label: data.place.name || labelFallback,
-        });
-        return;
-      }
-    } catch (err) {
-      console.warn("Server place details failed:", err);
-    }
-
-    if (typeof google === "undefined") return;
-
-    const service = new google.maps.places.PlacesService(
-      document.createElement("div")
-    );
-
-    service.getDetails(
-      {
-        placeId,
-        fields: ["geometry", "formatted_address", "name", "place_id"],
-      },
-      (details, status) => {
-        if (status === "OK" && details?.geometry?.location) {
-          applyPlace(type, {
-            lat: details.geometry.location.lat(),
-            lng: details.geometry.location.lng(),
-            name: details.formatted_address || labelFallback,
-            label: details.name || labelFallback,
-          });
-          return;
-        }
-
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode({ placeId }, (results, geoStatus) => {
-          if (geoStatus === "OK" && results?.[0]?.geometry?.location) {
-            const result = results[0];
-            applyPlace(type, {
-              lat: result.geometry.location.lat(),
-              lng: result.geometry.location.lng(),
-              name: result.formatted_address || labelFallback,
-              label: labelFallback || result.formatted_address,
-            });
-          }
-        });
-      }
-    );
-  };
-
-  const handleClear = () => {
-    setValue(null);
-    if (type === "source") {
-      setSource([]);
-    } else if (type === "stop") {
-      setStopover((prevStopover) => {
-        const updatedStopovers = [...prevStopover];
-        updatedStopovers[index] = { lat: null, lng: null, name: "", label: "" };
-        return updatedStopovers;
+      const params = new URLSearchParams({
+        place_id: placeId,
+        sessiontoken: sessionToken.current,
       });
-    } else {
-      setDestination([]);
+      const res = await fetch(`/api/places/details?${params}`);
+      const data = await res.json();
+
+      if (!res.ok || !data?.place) {
+        throw new Error(data?.message || "Could not resolve that place.");
+      }
+
+      const display =
+        data.place.label || data.place.name || prediction.description || label;
+
+      skipFetchRef.current = true;
+      setQuery(display);
+      setSelectedLabel(display);
+
+      const ok = applyPlace({
+        lat: data.place.lat,
+        lng: data.place.lng,
+        name: display,
+        label: data.place.name || display,
+      });
+
+      if (!ok) {
+        throw new Error("That place is missing map coordinates.");
+      }
+
+      sessionToken.current =
+        typeof crypto !== "undefined" && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`;
+    } catch (err) {
+      console.error("Place details failed:", err);
+      clearPlace();
+      alert(err?.message || "Could not use that location. Try another search.");
+    } finally {
+      setResolving(false);
+      setOpen(false);
+      setPredictions([]);
     }
   };
 
@@ -184,81 +212,99 @@ function Autocomplete({ type, index, handleTrashClick }) {
       return;
     }
 
-    setIsLocating(true);
-
+    setResolving(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const params = new URLSearchParams({
+            lat: String(latitude),
+            lng: String(longitude),
+          });
+          const res = await fetch(`/api/places/geocode?${params}`);
+          const data = await res.json();
+          const display =
+            data?.place?.label ||
+            data?.place?.name ||
+            "Current location";
 
-        const geocoder = new google.maps.Geocoder();
-        geocoder.geocode(
-          { location: { lat: latitude, lng: longitude } },
-          (results, status) => {
-            if (status === "OK" && results[0]) {
-              const geocodeResult = results[0];
+          skipFetchRef.current = true;
+          setQuery(display);
+          setSelectedLabel(display);
+          setOpen(false);
+          setPredictions([]);
 
-              const placeId = geocodeResult.place_id;
-              const service = new google.maps.places.PlacesService(
-                document.createElement("div"),
-              );
-
-              service.getDetails({ placeId }, (place, placeStatus) => {
-                setIsLocating(false);
-
-                if (
-                  placeStatus === "OK" &&
-                  place.geometry &&
-                  place.geometry.location
-                ) {
-                  setSource({
-                    lat: place.geometry.location.lat(),
-                    lng: place.geometry.location.lng(),
-                    name: place.formatted_address,
-                    label: place.name || place.formatted_address,
-                  });
-
-                  setValue({
-                    label: place.formatted_address,
-                    value: {
-                      place_id: place.place_id,
-                      description: place.formatted_address,
-                    },
-                  });
-                } else {
-                  setSource({
-                    lat: latitude,
-                    lng: longitude,
-                    name: geocodeResult.formatted_address,
-                    label: geocodeResult.formatted_address,
-                  });
-
-                  setValue({
-                    label: geocodeResult.formatted_address,
-                    value: {
-                      place_id: geocodeResult.place_id,
-                      description: geocodeResult.formatted_address,
-                    },
-                  });
-                  setIsLocating(false);
-                }
-              });
-            } else {
-              setIsLocating(false);
-              alert("Unable to get address from your location");
-            }
-          },
-        );
+          applyPlace({
+            lat: data?.place?.lat ?? latitude,
+            lng: data?.place?.lng ?? longitude,
+            name: display,
+            label: data?.place?.name || display,
+          });
+        } catch {
+          skipFetchRef.current = true;
+          setQuery("Current location");
+          setSelectedLabel("Current location");
+          applyPlace({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            name: "Current location",
+            label: "Current location",
+          });
+        } finally {
+          setResolving(false);
+        }
       },
       (error) => {
-        setIsLocating(false);
+        setResolving(false);
         alert("Error getting your location: " + error.message);
       },
+      { enableHighAccuracy: true, timeout: 12000 }
     );
   };
 
+  const menu =
+    mounted && open && menuBox && predictions.length > 0
+      ? createPortal(
+          <ul
+            id={listId}
+            role="listbox"
+            className="fixed z-[100001] max-h-64 overflow-y-auto rounded-xl border border-white/10 bg-obsidian p-1 shadow-[0_16px_48px_rgba(0,0,0,0.45)]"
+            style={{
+              top: menuBox.top,
+              left: menuBox.left,
+              width: menuBox.width,
+            }}
+          >
+            {predictions.map((prediction) => (
+              <li key={prediction.place_id}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected="false"
+                  className="flex w-full flex-col items-start rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-white/10"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => selectPrediction(prediction)}
+                >
+                  <span className="font-body text-[14px] text-paper">
+                    {prediction.structured_formatting?.main_text ||
+                      prediction.description}
+                  </span>
+                  {prediction.structured_formatting?.secondary_text ? (
+                    <span className="mt-0.5 font-body text-[12px] text-ash">
+                      {prediction.structured_formatting.secondary_text}
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            ))}
+          </ul>,
+          document.body
+        )
+      : null;
+
   return (
-    <div className="flex flex-col">
-      {type == "source" ? (
+    <div className="flex flex-col" ref={containerRef}>
+      {type === "source" ? (
         <label className="mb-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-ash">
           Where From?
         </label>
@@ -271,67 +317,75 @@ function Autocomplete({ type, index, handleTrashClick }) {
           Where To?
         </label>
       )}
+
       <div className="flex flex-row items-center rounded-xl border border-white/10 bg-graphite pr-2 transition-colors focus-within:border-white/25">
-        <GooglePlacesAutocomplete
-          selectProps={{
-            value,
-            onChange: (place) => {
-              if (!place) {
-                handleClear();
-                return;
-              }
-              setValue(place);
-              getLatAndLng(place, type);
-            },
-            placeholder: placeholder,
-            isClearable: true,
-            className: "w-[100%]",
-            // Portal out of overflow containers so taps work on mobile
-            menuPortalTarget:
-              typeof document !== "undefined" ? document.body : null,
-            menuPosition: "fixed",
-            menuShouldScrollIntoView: false,
-            components: {
-              DropdownIndicator: false,
-              ClearIndicator: () => (
-                <button
-                  type="button"
-                  className="pr-2 text-ash transition-colors hover:text-paper"
-                  onClick={handleClear}
-                >
-                  <i className="fa-solid fa-xmark"></i>
-                </button>
-              ),
-            },
-            styles: placesStyles,
+        <input
+          type="text"
+          value={query}
+          placeholder={resolving ? "Getting location…" : placeholder}
+          disabled={resolving}
+          autoComplete="off"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listId}
+          className="min-w-0 flex-1 bg-transparent px-3.5 py-3 font-body text-[14px] text-paper outline-none placeholder:text-ash disabled:opacity-70"
+          onChange={(e) => {
+            skipFetchRef.current = false;
+            setSelectedLabel("");
+            setQuery(e.target.value);
+          }}
+          onFocus={() => {
+            if (
+              predictions.length > 0 &&
+              !(selectedLabel && query.trim() === selectedLabel.trim())
+            ) {
+              setOpen(true);
+              updateMenuBox();
+            }
+          }}
+          onBlur={() => {
+            setTimeout(() => setOpen(false), 180);
           }}
         />
-        {type == "source" ? (
+
+        {loading || resolving ? (
+          <span className="px-2 text-ash" aria-hidden="true">
+            <i className="fa-solid fa-spinner fa-spin" />
+          </span>
+        ) : query ? (
+          <button
+            type="button"
+            className="px-2 text-ash transition-colors hover:text-paper"
+            aria-label="Clear location"
+            onClick={clearPlace}
+          >
+            <i className="fa-solid fa-xmark" />
+          </button>
+        ) : null}
+
+        {type === "source" ? (
           <button
             type="button"
             onClick={handleLocateMe}
-            disabled={isLocating}
+            disabled={resolving}
             className="px-3 py-2 text-frost transition-colors hover:text-paper disabled:cursor-not-allowed disabled:opacity-50"
             title="Use my current location"
           >
-            {isLocating ? (
-              <i className="fa-solid fa-spinner fa-spin"></i>
-            ) : (
-              <i className="fa-solid fa-location-crosshairs"></i>
-            )}
+            <i className="fa-solid fa-location-crosshairs" />
           </button>
-        ) : type == "stop" ? (
+        ) : type === "stop" ? (
           <button
             type="button"
             onClick={() => handleTrashClick(index)}
             className="px-2 text-ash transition-colors hover:text-paper"
+            aria-label="Remove stopover"
           >
-            <i className="fa-solid fa-trash"></i>
+            <i className="fa-solid fa-trash" />
           </button>
-        ) : (
-          <></>
-        )}
+        ) : null}
       </div>
+
+      {menu}
     </div>
   );
 }

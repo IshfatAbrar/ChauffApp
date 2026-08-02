@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useMemo, useState, useRef } from "react";
 import Autocomplete from "./Autocomplete";
 import { SourceContext } from "../../context/SourceContext";
 import { DestinationContext } from "../../context/DestinationContext";
@@ -12,8 +12,21 @@ import { DistanceContext } from "../../context/DistanceContext";
 import { TollContext } from "../../context/TollContext";
 import { computeRoute, hasPlace } from "../../lib/computeRoute";
 
+function tripFingerprint(source, destination, stopover, time) {
+  const stopKey = (Array.isArray(stopover) ? stopover : [])
+    .map((s) => `${s?.lat ?? ""},${s?.lng ?? ""}`)
+    .join("|");
+  return [
+    source?.lat ?? "",
+    source?.lng ?? "",
+    destination?.lat ?? "",
+    destination?.lng ?? "",
+    stopKey,
+    time instanceof Date ? time.getTime() : "",
+  ].join("::");
+}
+
 function Booking({
-  duration,
   setDuration,
   setIsPaymentModalOpen,
   paymentMethod,
@@ -24,10 +37,12 @@ function Booking({
   const { destination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
   const { time } = useContext(TimeContext);
-  const { distance, setDistance } = useContext(DistanceContext);
+  const { setDistance } = useContext(DistanceContext);
   const { setToll } = useContext(TollContext);
 
   const [showResults, setShowResults] = useState(false);
+  const [routeDistance, setRouteDistance] = useState(0);
+  const [routeDuration, setRouteDuration] = useState(null);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
     "Please fill in all fields before searching."
@@ -36,11 +51,23 @@ function Booking({
   const [searching, setSearching] = useState(false);
   const bottomRef = useRef(null);
   const searchId = useRef(0);
+  const lastTripKey = useRef("");
 
+  const tripKey = useMemo(
+    () => tripFingerprint(source, destination, stopover, time),
+    [source, destination, stopover, time]
+  );
+
+  // Only clear results when the trip inputs actually change
   useEffect(() => {
-    setShowResults(false);
-    setError(false);
-  }, [source, destination, stopover, time]);
+    if (lastTripKey.current && lastTripKey.current !== tripKey) {
+      setShowResults(false);
+      setRouteDistance(0);
+      setRouteDuration(null);
+      setError(false);
+    }
+    lastTripKey.current = tripKey;
+  }, [tripKey]);
 
   useEffect(() => {
     setMax(stopover.length === 2);
@@ -49,14 +76,18 @@ function Booking({
   const panDowntoBottom = () => {
     setTimeout(() => {
       bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 200);
+    }, 250);
   };
 
-  const onSearchHandler = async () => {
+  const onSearchHandler = async (event) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
     if (searching) return;
 
     if (!hasPlace(source) || !hasPlace(destination)) {
-      setErrorMessage("Select a pickup and dropoff location.");
+      setErrorMessage(
+        "Select a pickup and dropoff from the suggestions (tap a result)."
+      );
       setError(true);
       setShowResults(false);
       return;
@@ -83,14 +114,20 @@ function Booking({
     const id = ++searchId.current;
     setSearching(true);
     setError(false);
-    setShowResults(false);
 
     try {
       const result = await computeRoute(source, destination, stopover);
       if (id !== searchId.current) return;
 
-      setDistance(result.distanceKm);
-      setToll(result.toll || 0);
+      const distanceKm = Number(result.distanceKm) || 0;
+      if (distanceKm <= 0) {
+        throw new Error("No driving route found between those locations.");
+      }
+
+      setRouteDistance(distanceKm);
+      setRouteDuration(result.duration || null);
+      setDistance(distanceKm);
+      setToll(Number(result.toll) || 0);
       if (typeof setDuration === "function") {
         setDuration(result.duration);
       }
@@ -99,6 +136,8 @@ function Booking({
       panDowntoBottom();
     } catch (err) {
       if (id !== searchId.current) return;
+      setRouteDistance(0);
+      setRouteDuration(null);
       setDistance(0);
       setToll(0);
       setShowResults(false);
@@ -171,7 +210,7 @@ function Booking({
 
           <button
             type="button"
-            className="relative z-10 mt-2 w-full touch-manipulation rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:opacity-70"
+            className="relative z-20 mt-2 min-h-[48px] w-full touch-manipulation rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:opacity-70"
             onClick={onSearchHandler}
             disabled={searching}
           >
@@ -180,11 +219,11 @@ function Booking({
         </div>
       </div>
 
-      {showResults && distance > 0 ? (
-        <div ref={bottomRef}>
+      {showResults && routeDistance > 0 ? (
+        <div ref={bottomRef} className="mt-2">
           <CarListOptions
-            duration={duration}
-            distance={distance}
+            duration={routeDuration}
+            distance={routeDistance}
             panDowntoBottom={panDowntoBottom}
             setIsPaymentModalOpen={setIsPaymentModalOpen}
             paymentMethod={paymentMethod}

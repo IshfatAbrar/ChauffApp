@@ -138,10 +138,9 @@ export default function Page() {
                   <HomeNavbar />
                   {isLoaded ? (
                     <div className="grid grid-cols-1 gap-3 px-3 pb-3 md:h-[calc(100svh-5.5rem)] md:grid-cols-3 md:px-4 md:pb-4">
-                      <div className="order-2 overflow-y-auto no-scrollbar rounded-[24px] border border-white/10 bg-obsidian md:order-1 md:h-full">
-                        <OneStopTollCalculator setDuration={setDuration} />
+                      <div className="order-2 rounded-[24px] border border-white/10 bg-obsidian md:order-1 md:h-full md:overflow-y-auto md:no-scrollbar">
+                        <OneStopTollCalculator />
                         <Booking
-                          duration={duration}
                           setDuration={setDuration}
                           setIsPaymentModalOpen={setIsPaymentModalOpen}
                           paymentMethod={paymentMethod}
