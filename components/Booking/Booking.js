@@ -8,7 +8,13 @@ import DateSelecter from "./DateSelecter";
 import CarListOptions from "./CarListOptions";
 import { TimeContext } from "../../context/TimeContext";
 import { DistanceContext } from "../../context/DistanceContext";
-import { TollContext } from "../../context/TollContext";
+
+const hasPlace = (place) =>
+  place &&
+  typeof place.lat === "number" &&
+  typeof place.lng === "number" &&
+  Number.isFinite(place.lat) &&
+  Number.isFinite(place.lng);
 
 function Booking({
   duration,
@@ -17,30 +23,32 @@ function Booking({
   customerRegion,
   currency,
 }) {
-  const { source, setSource } = useContext(SourceContext);
-  const { destination, setDestination } = useContext(DestinationContext);
+  const { source } = useContext(SourceContext);
+  const { destination } = useContext(DestinationContext);
   const { stopover, setStopover } = useContext(StopoverContext);
 
-  const { time, setTime } = useContext(TimeContext);
+  const { time } = useContext(TimeContext);
   const { distance, setDistance } = useContext(DistanceContext);
-  const { toll, setToll } = useContext(TollContext);
   const [showDistance, setShowDistance] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(
     "Please fill in all fields before searching."
   );
   const [max, setMax] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const pendingSearch = useRef(false);
 
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    if (!source) {
+    // Reset results whenever the trip shape changes
+    setShowDistance(false);
+    pendingSearch.current = false;
+    setSearching(false);
+    if (!hasPlace(source) || !hasPlace(destination)) {
       setDistance(0);
     }
-    if (destination) {
-      setDistance(0);
-    }
-  }, [source, destination]);
+  }, [source, destination, stopover, setDistance]);
 
   const panDowntoBottom = () => {
     setTimeout(() => {
@@ -48,10 +56,30 @@ function Booking({
     }, 200);
   };
 
-  const hasPlace = (place) =>
-    place &&
-    typeof place.lat === "number" &&
-    typeof place.lng === "number";
+  // If the user tapped Search before the route finished, finish once distance arrives
+  useEffect(() => {
+    if (!pendingSearch.current || !(distance > 0)) return;
+    pendingSearch.current = false;
+    setSearching(false);
+    setShowDistance(true);
+    setError(false);
+    panDowntoBottom();
+  }, [distance]);
+
+  // Don't leave the button stuck on "Calculating…" if the route API fails
+  useEffect(() => {
+    if (!searching) return undefined;
+    const timer = setTimeout(() => {
+      if (!pendingSearch.current) return;
+      pendingSearch.current = false;
+      setSearching(false);
+      setErrorMessage(
+        "Couldn't calculate that route. Check your locations and try again."
+      );
+      setError(true);
+    }, 12000);
+    return () => clearTimeout(timer);
+  }, [searching]);
 
   const onSearchHandler = () => {
     const incompleteStop = Array.isArray(stopover)
@@ -59,28 +87,36 @@ function Booking({
       : false;
 
     if (!hasPlace(source) || !hasPlace(destination)) {
+      pendingSearch.current = false;
+      setSearching(false);
       setErrorMessage("Select a pickup and dropoff location.");
       setError(true);
       return;
     }
     if (!time) {
+      pendingSearch.current = false;
+      setSearching(false);
       setErrorMessage("Choose a pickup time at least 6 hours from now.");
       setError(true);
       return;
     }
     if (incompleteStop) {
+      pendingSearch.current = false;
+      setSearching(false);
       setErrorMessage("Finish or remove any incomplete stopovers.");
       setError(true);
       return;
     }
-    if (!distance) {
-      setErrorMessage(
-        "Still calculating your route. Wait a moment, then tap Search again."
-      );
+    if (!distance || distance <= 0) {
+      pendingSearch.current = true;
+      setSearching(true);
+      setErrorMessage("Calculating your route…");
       setError(true);
       return;
     }
 
+    pendingSearch.current = false;
+    setSearching(false);
     setShowDistance(true);
     setError(false);
     panDowntoBottom();
@@ -96,11 +132,7 @@ function Booking({
   };
 
   useEffect(() => {
-    if (stopover.length == 2) {
-      setMax(true);
-    } else {
-      setMax(false);
-    }
+    setMax(stopover.length === 2);
   }, [stopover]);
 
   const handleTrashClick = (index) => {
@@ -136,6 +168,7 @@ function Booking({
           ))}
           <Autocomplete type="dropoff" />
           <button
+            type="button"
             onClick={handleAddStopover}
             disabled={max}
             className={`w-full rounded-full border py-2.5 font-body text-sm transition ${
@@ -149,15 +182,17 @@ function Booking({
           <DateSelecter />
 
           <button
-            className="mt-2 w-full rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85"
+            type="button"
+            className="relative z-10 mt-2 w-full touch-manipulation rounded-full bg-paper py-3.5 font-body text-[15px] text-black transition-opacity duration-200 hover:opacity-85 disabled:opacity-70"
             onClick={onSearchHandler}
+            disabled={searching}
           >
-            Search
+            {searching ? "Calculating…" : "Search"}
           </button>
         </div>
       </div>
 
-      {!error && distance && showDistance ? (
+      {!error && distance > 0 && showDistance ? (
         <div ref={bottomRef}>
           <CarListOptions
             duration={duration}

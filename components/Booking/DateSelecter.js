@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useContext, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -7,27 +9,26 @@ import { TimeContext } from "../../context/TimeContext";
 function DateSelecter() {
   const { time, setTime } = useContext(TimeContext);
   const [minSelectableTime, setMinSelectableTime] = useState(null);
-
-  const calculateMinSelectableTime = () => {
-    const now = new Date();
-    const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-    setMinSelectableTime(sixHoursFromNow);
-  };
-
-  const handleDateChange = (date) => {
-    setTime(date);
-  };
-
-  const filterFutureTime = (time) => {
-    const now = new Date();
-    const sixHoursFromNow = new Date(now.getTime() + 6 * 60 * 60 * 1000);
-    const selectedDate = new Date(time);
-    return selectedDate.getTime() >= sixHoursFromNow.getTime();
-  };
+  const [usePortal, setUsePortal] = useState(false);
 
   useEffect(() => {
-    calculateMinSelectableTime();
+    const sixHoursFromNow = new Date(Date.now() + 6 * 60 * 60 * 1000);
+    setMinSelectableTime(sixHoursFromNow);
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setUsePortal(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  const filterFutureTime = (timeSlot) => {
+    const sixHoursFromNow = new Date(Date.now() + 6 * 60 * 60 * 1000);
+    return new Date(timeSlot).getTime() >= sixHoursFromNow.getTime();
+  };
 
   return (
     <div>
@@ -44,12 +45,13 @@ function DateSelecter() {
           showIcon
           icon="fa fa-calendar"
           selected={time}
-          onChange={handleDateChange}
+          onChange={(date) => setTime(date)}
           showTimeSelect
-          isClearable={true}
+          isClearable
           dateFormat="Pp"
           popperPlacement="bottom-end"
-          withPortal={typeof window !== "undefined" && window.innerWidth < 768}
+          withPortal={usePortal}
+          portalId="chauff-datepicker-portal"
           className="custom-datepicker-input w-full"
           minDate={minSelectableTime}
           filterTime={filterFutureTime}

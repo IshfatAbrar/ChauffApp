@@ -82,43 +82,62 @@ function Autocomplete({ type, index, handleTrashClick }) {
     }
   }, []);
 
+  const applyPlace = (type, next) => {
+    if (type === "source") {
+      setSource(next);
+    } else if (type === "stop") {
+      setStopover((prevStopover) => {
+        const updatedStopovers = [...prevStopover];
+        updatedStopovers[index] = next;
+        return updatedStopovers;
+      });
+    } else {
+      setDestination(next);
+    }
+  };
+
   const getLatAndLng = (place, type) => {
+    if (!place?.value?.place_id || typeof google === "undefined") return;
+
     const placeId = place.value.place_id;
+    const labelFallback =
+      place.label || place.value.description || place.value.structured_formatting?.main_text || "";
+
     const service = new google.maps.places.PlacesService(
       document.createElement("div"),
     );
-    service.getDetails({ placeId }, (place, status) => {
-      if (status === "OK" && place.geometry && place.geometry.location) {
-        console.log(place);
-        if (type == "source") {
-          setSource({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            name: place.formatted_address,
-            label: place.name,
+
+    service.getDetails(
+      {
+        placeId,
+        fields: ["geometry", "formatted_address", "name", "place_id"],
+      },
+      (details, status) => {
+        if (status === "OK" && details?.geometry?.location) {
+          applyPlace(type, {
+            lat: details.geometry.location.lat(),
+            lng: details.geometry.location.lng(),
+            name: details.formatted_address || labelFallback,
+            label: details.name || labelFallback,
           });
-        } else if (type == "stop") {
-          setStopover((prevStopover) => {
-            const updatedStopovers = [...prevStopover];
-            updatedStopovers[index] = {
-              lat: place.geometry.location.lat(),
-              lng: place.geometry.location.lng(),
-              name: place.formatted_address,
-              label: place.name,
-            };
-            return updatedStopovers;
-          });
-        } else {
-          console.log("dropoff");
-          setDestination({
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            name: place.formatted_address,
-            label: place.name,
-          });
+          return;
         }
-      }
-    });
+
+        // Fallback when Places details fails on mobile
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ placeId }, (results, geoStatus) => {
+          if (geoStatus === "OK" && results?.[0]?.geometry?.location) {
+            const result = results[0];
+            applyPlace(type, {
+              lat: result.geometry.location.lat(),
+              lng: result.geometry.location.lng(),
+              name: result.formatted_address || labelFallback,
+              label: labelFallback || result.formatted_address,
+            });
+          }
+        });
+      },
+    );
   };
 
   const handleClear = () => {
